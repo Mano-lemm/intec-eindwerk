@@ -1,0 +1,47 @@
+code,pwd
+"let fibonacci = fn(x) {
+  if (x == 0) {
+    0
+  } else {
+    if (x == 1) {
+      return 1;
+    } else {
+      fibonacci(x - 1) + fibonacci(x - 2);
+    }
+  }
+};
+",no
+"let fibonacci = fn(x) {
+  if (x == 0) {
+    0
+  } else {
+    if (x == 1) {
+      return 1;
+    } else {
+      fibonacci(x - 1) + fibonacci(x - 2);
+    }
+  }
+};
+",ah
+"// User-defined functions...
+let getName = fn(person) { person[""name""]; };
+getName(people[0]); // => ""Anna""
+getName(people[1]); // => ""Bob""
+
+// and built-in functions
+puts(len(people))  // prints: 2",123
+"// User-defined functions...
+let getName = fn(person) { person[""name""]; };
+getName(people[0]); // => ""Anna""
+getName(people[1]); // => ""Bob""
+
+// and built-in functions
+puts(len(people))  // prints: 2",dsajio
+"// `newAdder` returns a closure that makes use of the free variables `a` and `b`:
+let newAdder = fn(a, b) {
+    fn(c) { a + b + c };
+};
+// This constructs a new `adder` function:
+let adder = newAdder(1, 2);
+
+adder(8); // => 11",123
