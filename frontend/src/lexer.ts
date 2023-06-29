@@ -1,50 +1,59 @@
-
 enum TokenType {
     //special
-    Illegal,
-    EOF,
+    Illegal = "Illegal",
+    EOF = "EOF",
 
     // ident and literal
-    Ident,
-    Int,
-    String,
+    Ident = "Ident",
+    Int = "Int",
+    String = "String",
 
     // operations
-    Assign,
-    Plus,
-    Minus,
-    Bang,
-    Asterisk,
-    Slash,
-    LessThan,
-    GreaterThan,
-    Equal,
-    NotEqual, 
+    Assign = "Assign",
+    Plus = "Plus",
+    Minus = "Minus",
+    Bang = "Bang",
+    Asterisk = "Asterisk",
+    Slash = "Slash",
+    LessThan = "LessThan",
+    GreaterThan = "GreaterThan",
+    Equal = "Equal",
+    NotEqual = "NotEqual", 
 
     // semantic
-    Comma,
-    Semicolon,
-    Colon,
+    Comma = "Comma",
+    Semicolon = "Semicolon",
+    Colon = "Colon",
     
     // keywords
-    Function,
-    Let,
-    True,
-    False,
-    If,
-    Else,
-    Return,
+    Function = "Function",
+    Let = "Let",
+    True = "True",
+    False = "False",
+    If = "If",
+    Else = "Else",
+    Return = "Return",
     
     // braces
-    LeftRoundBrace,
-    RightRoundBrace,
-    LeftSquirlyBrace,
-    RightSquirlyBrace,
-    LeftSquareBrace,
-    RightSquareBrace
+    LeftRoundBrace = "LeftRoundBrace",
+    RightRoundBrace = "RightRoundBrace",
+    LeftSquirlyBrace = "LeftSquirlyBrace",
+    RightSquirlyBrace = "RightSquirlyBrace",
+    LeftSquareBrace = "LeftSquareBrace",
+    RightSquareBrace = "RightSquareBrace"
 }
 
 type token = { token: TokenType, literal: string | number}
+
+const keywords: Record<string, TokenType> = {
+    "fn": TokenType.Function,
+    "let": TokenType.Let,
+    "true": TokenType.True,
+    "false": TokenType.False,
+    "if": TokenType.If,
+    "else": TokenType.Else,
+    "return": TokenType.Return
+}
 
 class lexer {
     private input = "";
@@ -63,49 +72,78 @@ class lexer {
         switch(this.ch){
             case ",":
                 rt = {token: TokenType.Comma, literal: ","}
+                break;
             case ";":
                 rt = {token: TokenType.Semicolon, literal: ";"}
+                break;
             case ":":
                 rt = {token: TokenType.Colon, literal: ":"}
+                break;
             case "[":
                 rt = {token: TokenType.LeftSquareBrace, literal: "["}
+                break;
             case "]":
                 rt = {token: TokenType.RightSquareBrace, literal: "]"}
+                break;
             case "(":
                 rt = {token: TokenType.LeftRoundBrace, literal: "("}
+                break;
             case ")":
                 rt = {token: TokenType.RightRoundBrace, literal: ")"}
+                break;
             case "{":
                 rt = {token: TokenType.LeftSquirlyBrace, literal: "{"}
+                break;
             case "}":
                 rt = {token: TokenType.RightSquirlyBrace, literal: "}"}
+                break;
             case "=":
-                rt = {token: TokenType.Assign, literal: "="}
+                if(this.peekChar() == "="){
+                    rt = {token: TokenType.Equal, literal: "=="}
+                    this.readChar()
+                } else {
+                    rt = {token: TokenType.Assign, literal: "="}
+                }
+                break;
             case "+":
                 rt = {token: TokenType.Plus, literal: "+"}
+                break;
             case "-":
                 rt = {token: TokenType.Minus, literal: "-"}
+                break;
             case "!":
-                rt = {token: TokenType.Bang, literal: "!"}
+                if(this.peekChar() == "="){
+                    rt = {token: TokenType.NotEqual, literal: "!="}
+                    this.readChar()
+                } else {
+                    rt = {token: TokenType.Bang, literal: "!"}
+                }
+                break;
             case "*":
                 rt = {token: TokenType.Asterisk, literal: "*"}
+                break;
             case "/":
                 rt = {token: TokenType.Slash, literal: "/"}
+                break;
             case "<":
                 rt = {token: TokenType.LessThan, literal: "<"}
+                break;
             case ">":
                 rt = {token: TokenType.GreaterThan, literal: ">"}
+                break;
             case "\0":
                 rt = {token: TokenType.EOF, literal: ""}
+                break;
             default:
                 // match letter
-                if(this.ch.match(/[a-z]/i || this.ch.match(/_/))){
+                if(this.ch.match(/[a-z]/i) || this.ch.match(/_/)){
                     rt = this.readIdentifier();
                 } else if(this.ch.match(/\d/)){
                     rt = this.readIntLiteral()
                 } else {
                     rt = {token: TokenType.Illegal, literal: ""}
                 }
+                return rt
         }
         this.readChar()
         return rt;
@@ -117,7 +155,11 @@ class lexer {
             literal += this.ch
             this.readChar()
         }
-        return {token: TokenType.Illegal, literal: ""}
+        let type = keywords[literal]
+        if(type == undefined){
+            type = TokenType.String
+        }
+        return {token: type, literal: literal}
     }
 
     readIntLiteral(): token{
@@ -140,6 +182,18 @@ class lexer {
         this.readPos++
     }
 
+    peekChar(): string {
+        if(this.pos >= this.input.length){
+            return "\0"
+        } else {
+            let x = this.input[this.readPos]
+            if(x == undefined){
+                x = "\0"
+            }
+            return x
+        }
+    }
+
     skipWhiteSpace(){
         while(this.ch.match(/\s/)){
             this.readChar()
@@ -151,26 +205,10 @@ function lex(input: string): token[]{
     let tokens: token[] = [];
     let parser = new lexer(input)
     let curTok = parser.nextToken()
-    while(curTok.token != TokenType.EOF){
+    while(curTok.token != TokenType.EOF && curTok.token != TokenType.Illegal){
         tokens.push(curTok)
+        curTok = parser.nextToken()
     }
+    tokens.push(curTok)
     return tokens;
 }
-
-console.log(lex(`let five = 5;
-let ten = 10;
-
-let add = fn(x, y){
-    x + y;
-};
-
-let result = add(five, ten);
-!-/*5;
-
-5 < 10 > 5;
-
-if (5 < 10) {
-    return true;
-} else {
-    return false;
-}`))
