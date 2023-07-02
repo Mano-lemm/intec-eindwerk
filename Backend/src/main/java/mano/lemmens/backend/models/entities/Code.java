@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"owner", "codeHash"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"owner", "name"}))
 public class Code {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
