@@ -1,4 +1,4 @@
-enum TokenType {
+export enum TokenType {
   //special
   Illegal = "Illegal",
   EOF = "EOF",
@@ -43,7 +43,7 @@ enum TokenType {
   RightSquareBrace = "RightSquareBrace",
 }
 
-type token = { token: TokenType; literal: string | number };
+export type token = { token: TokenType; literal: string | number };
 
 const keywords: Record<string, TokenType> = {
   fn: TokenType.Function,
@@ -55,7 +55,7 @@ const keywords: Record<string, TokenType> = {
   return: TokenType.Return,
 };
 
-class lexer {
+export class lexer {
   private input = "";
   private pos = 0;
   private readPos = 0;
@@ -66,7 +66,7 @@ class lexer {
     this.readChar();
   }
 
-  nextToken(): token {
+   public nextToken(): token {
     let rt: token = { token: TokenType.Illegal, literal: "" };
     this.skipWhiteSpace();
     switch (this.ch) {
@@ -149,7 +149,7 @@ class lexer {
     return rt;
   }
 
-  readIdentifier(): token {
+  private readIdentifier(): token {
     let literal = "";
     while (this.ch.match(/[a-z]/i) || this.ch.match(/_/)) {
       literal += this.ch;
@@ -162,7 +162,7 @@ class lexer {
     return { token: type, literal: literal };
   }
 
-  readIntLiteral(): token {
+  private readIntLiteral(): token {
     let literal = "";
     while (this.ch.match(/\d/)) {
       literal += this.ch;
@@ -171,7 +171,7 @@ class lexer {
     return { token: TokenType.Int, literal: parseInt(literal) };
   }
 
-  readChar() {
+  private readChar() {
     if (this.pos >= this.input.length) {
       this.ch = "\0";
     } else {
@@ -182,7 +182,7 @@ class lexer {
     this.readPos++;
   }
 
-  peekChar(): string {
+  private peekChar(): string {
     if (this.pos >= this.input.length) {
       return "\0";
     } else {
@@ -194,7 +194,7 @@ class lexer {
     }
   }
 
-  skipWhiteSpace() {
+  private skipWhiteSpace() {
     while (this.ch.match(/\s/)) {
       this.readChar();
     }
