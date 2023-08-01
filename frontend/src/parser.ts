@@ -85,7 +85,7 @@ class Parser {
 
   private peekTypeError(t: TokenType) {
     this.errors.push(
-      `Expecting token of type ${t}, got token of type ${this.peekToken.token}.`,
+      `Expecting token of type ${t}, got token of type ${this.peekToken.token}.`
     );
   }
 }
@@ -104,7 +104,7 @@ function letTest() {
 
     if (program.statements.length != 1) {
       console.error(
-        `program doesn't contain 1 statement. len(prog)=${program.statements.length}`,
+        `program doesn't contain 1 statement. len(prog)=${program.statements.length}`
       );
       return;
     }
