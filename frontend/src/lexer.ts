@@ -66,7 +66,7 @@ export class lexer {
     this.readChar();
   }
 
-   public nextToken(): token {
+  public nextToken(): token {
     let rt: token = { token: TokenType.Illegal, literal: "" };
     this.skipWhiteSpace();
     switch (this.ch) {
