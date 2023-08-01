@@ -1,5 +1,5 @@
 import { Identifier, LetStatement, Program, Statement } from "./ast";
-import { lexer, token, TokenType } from "./lexer";
+import { lex, lexer, token, TokenType } from "./lexer";
 
 class Parser {
   private lexer: lexer;
@@ -36,6 +36,7 @@ class Parser {
     switch (this.curToken.token) {
       case TokenType.Let:
         return this.parseLetStatement();
+      case TokenType.Return:
       default:
         return undefined;
     }
@@ -43,14 +44,23 @@ class Parser {
 
   private parseLetStatement(): Statement | undefined {
     let statement = new LetStatement();
+    statement.token = this.curToken;
+    if (!this.expectPeek(TokenType.Ident)) {
+      return undefined;
+    }
     statement.name.token = this.curToken;
     statement.name.val = "" + this.curToken.literal;
 
     if (!this.expectPeek(TokenType.Assign)) {
-      this.errors.push(
-        `Was expecting type ${TokenType.Assign} got ${this.peekToken.token}`,
-      );
       return undefined;
+    }
+
+    // TODO: not skip expr
+    while (
+      !this.curTokenIs(TokenType.Semicolon) &&
+      !this.curTokenIs(TokenType.Illegal)
+    ) {
+      this.nextToken();
     }
 
     return statement;
@@ -69,6 +79,38 @@ class Parser {
       this.nextToken();
       return true;
     }
+    this.peekTypeError(t);
     return false;
   }
+
+  private peekTypeError(t: TokenType) {
+    this.errors.push(
+      `Expecting token of type ${t}, got token of type ${this.peekToken.token}.`,
+    );
+  }
 }
+
+function letTest() {
+  let tests = [
+    { input: "let x = 5;", expectedIdent: "x", expectedVal: 5 },
+    { input: "let y = true;", expectedIdent: "y", expectedVal: true },
+    { input: 'let foobar = "y";', expectedIdent: "foobar", expectedVal: "y" },
+  ];
+
+  for (let test of tests) {
+    let l = new lexer(test.input);
+    let p = new Parser(l);
+    let program = p.parseProgram();
+
+    if (program.statements.length != 1) {
+      console.error(
+        `program doesn't contain 1 statement. len(prog)=${program.statements.length}`,
+      );
+      return;
+    }
+
+    console.log(JSON.stringify(program.statements));
+  }
+}
+
+letTest();

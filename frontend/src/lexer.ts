@@ -140,6 +140,8 @@ export class lexer {
           rt = this.readIdentifier();
         } else if (this.ch.match(/\d/)) {
           rt = this.readIntLiteral();
+        } else if (this.ch.match(/"/)) {
+          rt = this.readStringLiteral();
         } else {
           rt = { token: TokenType.Illegal, literal: "" };
         }
@@ -147,6 +149,19 @@ export class lexer {
     }
     this.readChar();
     return rt;
+  }
+  readStringLiteral(): token {
+    let literal = "";
+    while (this.ch.match(/[a-z]/i) || this.ch.match(/_/)) {
+      literal += this.ch;
+      this.readChar();
+    }
+    if (!this.ch.match(/"/)) {
+      console.error("excuse me wtf");
+    } else {
+      this.readChar();
+    }
+    return { token: TokenType.String, literal: literal };
   }
 
   private readIdentifier(): token {
@@ -157,7 +172,7 @@ export class lexer {
     }
     let type = keywords[literal];
     if (type == undefined) {
-      type = TokenType.String;
+      type = TokenType.Ident;
     }
     return { token: type, literal: literal };
   }

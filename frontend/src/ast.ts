@@ -25,6 +25,7 @@ export class Program {
 }
 
 export class LetStatement implements Statement {
+  // constructor(public Token: token, public name: Identifier, public val: Expression) {}
   statement() {}
   tokenLiteral(): string {
     return "" + this.token.literal;
@@ -32,6 +33,14 @@ export class LetStatement implements Statement {
   public token: token = { token: TokenType.Let, literal: "" };
   public name: Identifier = new Identifier();
   public val: Expression | undefined;
+}
+
+export class ReturnStatement implements Statement {
+  constructor(public Token: token, public rval: Expression) {}
+  statement() {}
+  tokenLiteral(): string {
+    return "" + this.Token.literal;
+  }
 }
 
 export class Identifier implements Expression {
