@@ -9,7 +9,12 @@ import {
   IntegerLiteral,
 } from "./ast";
 import { type lexer } from "./lexer";
-import { TokenType, operationOrder, type prefixParseFn, type token } from "./types";
+import {
+  TokenType,
+  operationOrder,
+  type prefixParseFn,
+  type token,
+} from "./types";
 
 export class Parser {
   private lexer: lexer;
@@ -31,7 +36,9 @@ export class Parser {
       () => {
         return new IntegerLiteral(
           this.curToken,
-          this.curToken.literal as number
+          typeof this.curToken.literal === "number"
+            ? this.curToken.literal
+            : parseFloat(this.curToken.literal)
         ) as Expression;
       },
     ],
