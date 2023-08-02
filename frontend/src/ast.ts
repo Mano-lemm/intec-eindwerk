@@ -1,5 +1,8 @@
 import { type token, TokenType } from "./lexer";
 
+export type prefixParseFn = () => Expression;
+export type infixParseFun = (expr: Expression) => Expression;
+
 export interface Node {
   tokenLiteral(): string;
   String(): string;
@@ -30,9 +33,9 @@ export class Program {
 export class LetStatement implements Statement {
   // constructor(public Token: token, public name: Identifier, public val: Expression) {}
   String(): string {
-    return `${
-      this.token.literal
-    } ${this.name.String()} = ${this.val !== undefined ? this.val.String() : ""};`;
+    return `${this.token.literal} ${this.name.String()} = ${
+      this.val !== undefined ? this.val.String() : ""
+    };`;
   }
   statement() {}
   tokenLiteral(): string {
@@ -46,7 +49,9 @@ export class LetStatement implements Statement {
 export class ReturnStatement implements Statement {
   constructor(public Token: token, public rval: Expression | undefined) {}
   String(): string {
-    return `${this.Token.literal} ${this.rval !== undefined? this.rval.String() : ""};`;
+    return `${this.Token.literal} ${
+      this.rval !== undefined ? this.rval.String() : ""
+    };`;
   }
   statement() {}
   tokenLiteral(): string {

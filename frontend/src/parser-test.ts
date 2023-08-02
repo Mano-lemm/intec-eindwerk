@@ -1,4 +1,10 @@
-import { Identifier, LetStatement, Program } from "./ast";
+import {
+  type Expression,
+  ExpressionStatement,
+  Identifier,
+  LetStatement,
+  Program,
+} from "./ast";
 import { lexer, TokenType } from "./lexer";
 import { Parser } from "./parser";
 
@@ -67,6 +73,45 @@ function testString() {
     console.error(`prog.toString() wrong:
     expected: \"let myVar = antherVar;\"
     got     : \"${prog.toString()}\"`);
+  }
+}
+
+function testIdentifierExpr() {
+  const input = "foobar;";
+  const l = new lexer(input);
+  const p = new Parser(l);
+  const prog = p.parseProgram();
+
+  checkParserErrors(p);
+
+  if (prog.statements.length != 1) {
+    console.error(
+      `program doesn't have 1 statement, got ${prog.statements.length} statements instead.`
+    );
+  }
+
+  const stmt = prog.statements[0];
+  if (!(stmt instanceof ExpressionStatement)) {
+    console.error(
+      `Statement is not an ExpressionStatement, got a ${typeof prog
+        .statements[0]} instead.`
+    );
+  }
+
+  const exp: Expression | undefined = (stmt as ExpressionStatement).expr;
+  if (!(exp instanceof Identifier)) {
+    console.error(`expression is not `);
+  }
+
+  const ident: Identifier = exp as Identifier;
+
+  if (ident.val != "foobar") {
+    console.error(`ident.val is not \"foobar\", got ${ident.val}`);
+  }
+  if (ident.tokenLiteral() != "foobar") {
+    console.error(
+      `ident.tokenLiteral() not\"foobar\", got ${ident.tokenLiteral()}`
+    );
   }
 }
 

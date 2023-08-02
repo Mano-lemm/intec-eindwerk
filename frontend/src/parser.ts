@@ -3,6 +3,7 @@ import {
   LetStatement,
   Program,
   ReturnStatement,
+  prefixParseFn,
   type Statement,
 } from "./ast";
 import { lex, type lexer, type token, TokenType } from "./lexer";
@@ -12,6 +13,12 @@ export class Parser {
   public errors: string[] = [];
   private curToken: token;
   private peekToken: token;
+  // add back in when actual pratt parsing
+  // private prefixParseFns: Map<TokenType, prefixParseFn> = new Map([
+  //   [[TokenType.Minus], () => {
+  //     return new Identifier();
+  //   }]
+  // ])
 
   constructor(l: lexer) {
     this.lexer = l;
