@@ -3,9 +3,9 @@ import {
   LetStatement,
   Program,
   ReturnStatement,
-  Statement,
-} from "./ast.ts";
-import { lex, lexer, token, TokenType } from "./lexer.ts";
+  type Statement,
+} from "./ast";
+import { lex, type lexer, type token, TokenType } from "./lexer";
 
 export class Parser {
   private lexer: lexer;
@@ -25,10 +25,10 @@ export class Parser {
   }
 
   public parseProgram(): Program {
-    let program = new Program();
+    const program = new Program();
 
     while (this.curToken.token != TokenType.EOF) {
-      let statement = this.parseStatement();
+      const statement = this.parseStatement();
       if (statement != undefined) {
         program.statements.push(statement);
       }
@@ -50,13 +50,13 @@ export class Parser {
   }
 
   private parseLetStatement(): Statement | undefined {
-    let statement = new LetStatement();
+    const statement = new LetStatement();
     statement.token = this.curToken;
     if (!this.expectPeek(TokenType.Ident)) {
       return undefined;
     }
     statement.name.token = this.curToken;
-    statement.name.val = "" + this.curToken.literal;
+    statement.name.val = String(this.curToken.literal);
 
     if (!this.expectPeek(TokenType.Assign)) {
       return undefined;
@@ -71,7 +71,7 @@ export class Parser {
   }
 
   private parseReturnStatement(): Statement | undefined {
-    let statement = new ReturnStatement(this.curToken, undefined);
+    const statement = new ReturnStatement(this.curToken, undefined);
 
     this.nextToken();
 

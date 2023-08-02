@@ -3,16 +3,16 @@ import { lexer, TokenType } from "./lexer";
 import { Parser } from "./parser";
 
 function letTest() {
-  let tests = [
+  const tests = [
     { input: "let x = 5;", expectedIdent: "x", expectedVal: 5 },
     { input: "let y = true;", expectedIdent: "y", expectedVal: true },
     { input: 'let foobar = "y";', expectedIdent: "foobar", expectedVal: "y" },
   ];
 
-  for (let test of tests) {
-    let l = new lexer(test.input);
-    let p = new Parser(l);
-    let program = p.parseProgram();
+  for (const test of tests) {
+    const l = new lexer(test.input);
+    const p = new Parser(l);
+    const program = p.parseProgram();
 
     if (checkParserErrors(p)) {
       continue;
@@ -29,13 +29,13 @@ function letTest() {
 }
 
 function returnTest() {
-  let input = `return 5;
+  const input = `return 5;
   return 10;
   return 993322;`;
 
-  let l = new lexer(input);
-  let p = new Parser(l);
-  let prog = p.parseProgram();
+  const l = new lexer(input);
+  const p = new Parser(l);
+  const prog = p.parseProgram();
 
   if (checkParserErrors(p)) {
     return;
@@ -50,21 +50,30 @@ function returnTest() {
 }
 
 function testString() {
-  let prog = new Program();
-  let letStmt = new LetStatement();
+  const prog = new Program();
+  const letStmt = new LetStatement();
   letStmt.token = { token: TokenType.Let, literal: "let" };
-  letStmt.name.token = { token: TokenType.Ident, literal: "myVar" };
-  let ident = new Identifier();
+  const ident1 = new Identifier();
+  ident1.token = { token: TokenType.Ident, literal: "myVar" };
+  ident1.val = "myVar";
+  letStmt.name = ident1;
+  const ident = new Identifier();
   ident.token = { token: TokenType.Ident, literal: "anotherVar" };
   ident.val = "anotherVar";
   letStmt.val = ident;
   prog.statements = [letStmt];
+
+  if (prog.toString() != "let myVar = anotherVar;") {
+    console.error(`prog.toString() wrong:
+    expected: \"let myVar = antherVar;\"
+    got     : \"${prog.toString()}\"`);
+  }
 }
 
 function checkParserErrors(p: Parser) {
   if (p.errors.length != 0) {
     console.error(`parser has ${p.errors.length} errors:`);
-    for (let err of p.errors) {
+    for (const err of p.errors) {
       console.error(`\t${err}`);
     }
     return true;
@@ -74,3 +83,4 @@ function checkParserErrors(p: Parser) {
 
 letTest();
 returnTest();
+testString();
