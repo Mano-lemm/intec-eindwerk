@@ -1,4 +1,4 @@
-import { LetStatement, Program } from "./ast";
+import { Identifier, LetStatement, Program } from "./ast";
 import { lexer, TokenType } from "./lexer";
 import { Parser } from "./parser";
 
@@ -54,7 +54,10 @@ function testString() {
   let letStmt = new LetStatement();
   letStmt.token = { token: TokenType.Let, literal: "let" };
   letStmt.name.token = { token: TokenType.Ident, literal: "myVar" };
-  letStmt.val = undefined;
+  let ident = new Identifier();
+  ident.token = { token: TokenType.Ident, literal: "anotherVar" };
+  ident.val = "anotherVar";
+  letStmt.val = ident;
   prog.statements = [letStmt];
 }
 
