@@ -1,7 +1,13 @@
-import { Identifier, LetStatement, Program, Statement } from "./ast";
-import { lex, lexer, token, TokenType } from "./lexer";
+import {
+  Identifier,
+  LetStatement,
+  Program,
+  ReturnStatement,
+  Statement,
+} from "./ast.ts";
+import { lex, lexer, token, TokenType } from "./lexer.ts";
 
-class Parser {
+export class Parser {
   private lexer: lexer;
   public errors: string[] = [];
   private curToken: token;
@@ -37,6 +43,7 @@ class Parser {
       case TokenType.Let:
         return this.parseLetStatement();
       case TokenType.Return:
+        return this.parseReturnStatement();
       default:
         return undefined;
     }
@@ -56,10 +63,19 @@ class Parser {
     }
 
     // TODO: not skip expr
-    while (
-      !this.curTokenIs(TokenType.Semicolon) &&
-      !this.curTokenIs(TokenType.Illegal)
-    ) {
+    while (!this.curTokenIs(TokenType.Semicolon)) {
+      this.nextToken();
+    }
+
+    return statement;
+  }
+
+  private parseReturnStatement(): Statement | undefined {
+    let statement = new ReturnStatement(this.curToken, undefined);
+
+    this.nextToken();
+
+    while (!this.curTokenIs(TokenType.Semicolon)) {
       this.nextToken();
     }
 
@@ -89,28 +105,3 @@ class Parser {
     );
   }
 }
-
-function letTest() {
-  let tests = [
-    { input: "let x = 5;", expectedIdent: "x", expectedVal: 5 },
-    { input: "let y = true;", expectedIdent: "y", expectedVal: true },
-    { input: 'let foobar = "y";', expectedIdent: "foobar", expectedVal: "y" },
-  ];
-
-  for (let test of tests) {
-    let l = new lexer(test.input);
-    let p = new Parser(l);
-    let program = p.parseProgram();
-
-    if (program.statements.length != 1) {
-      console.error(
-        `program doesn't contain 1 statement. len(prog)=${program.statements.length}`
-      );
-      return;
-    }
-
-    console.log(JSON.stringify(program.statements));
-  }
-}
-
-letTest();

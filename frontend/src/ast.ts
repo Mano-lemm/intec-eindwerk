@@ -2,6 +2,7 @@ import { token, TokenType } from "./lexer";
 
 export interface Node {
   tokenLiteral(): string;
+  String(): string;
 }
 
 export interface Statement extends Node {
@@ -15,17 +16,24 @@ export interface Expression extends Node {
 export class Program {
   public statements: Statement[] = [];
 
-  public tokenLiteral(): string {
-    let x = this.statements[0];
-    if (x == undefined) {
-      return "";
+  public toString(): string {
+    let r = "";
+
+    for (const stmt of this.statements) {
+      r += stmt.String();
     }
-    return x.tokenLiteral();
+
+    return r;
   }
 }
 
 export class LetStatement implements Statement {
   // constructor(public Token: token, public name: Identifier, public val: Expression) {}
+  String(): string {
+    return `${
+      this.token.literal
+    } ${this.name.String()} = ${this.val?.String()};`;
+  }
   statement() {}
   tokenLiteral(): string {
     return "" + this.token.literal;
@@ -36,15 +44,32 @@ export class LetStatement implements Statement {
 }
 
 export class ReturnStatement implements Statement {
-  constructor(public Token: token, public rval: Expression) {}
+  constructor(public Token: token, public rval: Expression | undefined) {}
+  String(): string {
+    return `${this.Token.literal} ${this.rval?.String};`;
+  }
   statement() {}
   tokenLiteral(): string {
     return "" + this.Token.literal;
   }
 }
 
-export class Identifier implements Expression {
+export class ExpressionStatement implements Expression {
+  constructor(public Token: token, public expr: Expression | undefined) {}
+  String(): string {
+    return `${this.expr?.String()}`;
+  }
   expression() {}
+  tokenLiteral(): string {
+    return "" + this.Token.literal;
+  }
+}
+
+export class Identifier implements Statement {
+  String(): string {
+    return this.val;
+  }
+  statement() {}
   tokenLiteral(): string {
     return "" + this.token.literal;
   }
