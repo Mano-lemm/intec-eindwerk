@@ -48,7 +48,7 @@ export enum TokenType {
   RightSquareBrace = "RightSquareBrace",
 }
 
-export type token = { token: TokenType; literal: string | number };
+export type token = { type: TokenType; literal: string | number };
 
 export const keywords: Record<string, TokenType> = {
   fn: TokenType.Function,

@@ -59,13 +59,13 @@ function returnTest() {
 function testString() {
   const prog = new Program();
   const letStmt = new LetStatement();
-  letStmt.token = { token: TokenType.Let, literal: "let" };
+  letStmt.token = { type: TokenType.Let, literal: "let" };
   const ident1 = new Identifier();
-  ident1.token = { token: TokenType.Ident, literal: "myVar" };
+  ident1.token = { type: TokenType.Ident, literal: "myVar" };
   ident1.val = "myVar";
   letStmt.name = ident1;
   const ident = new Identifier();
-  ident.token = { token: TokenType.Ident, literal: "anotherVar" };
+  ident.token = { type: TokenType.Ident, literal: "anotherVar" };
   ident.val = "anotherVar";
   letStmt.val = ident;
   prog.statements = [letStmt];

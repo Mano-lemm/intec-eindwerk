@@ -51,7 +51,7 @@ export class Parser {
   public parseProgram(): Program {
     const program = new Program();
 
-    while (this.curToken.token != TokenType.EOF) {
+    while (this.curToken.type != TokenType.EOF) {
       const statement = this.parseStatement();
       if (statement != undefined) {
         program.statements.push(statement);
@@ -63,7 +63,7 @@ export class Parser {
   }
 
   private parseStatement(): Statement | undefined {
-    switch (this.curToken.token) {
+    switch (this.curToken.type) {
       case TokenType.Let:
         return this.parseLetStatement();
       case TokenType.Return:
@@ -120,18 +120,18 @@ export class Parser {
   }
 
   private parseExpression(order: operationOrder): Expression | undefined {
-    if (!this.prefixParseFns.has(this.curToken.token)) {
+    if (!this.prefixParseFns.has(this.curToken.type)) {
       return undefined;
     }
-    return (this.prefixParseFns.get(this.curToken.token) as prefixParseFn)();
+    return (this.prefixParseFns.get(this.curToken.type) as prefixParseFn)();
   }
 
   private curTokenIs(t: TokenType): boolean {
-    return this.curToken.token == t;
+    return this.curToken.type == t;
   }
 
   private peekTokenIs(t: TokenType): boolean {
-    return this.peekToken.token == t;
+    return this.peekToken.type == t;
   }
 
   private expectPeek(t: TokenType): boolean {
@@ -145,7 +145,7 @@ export class Parser {
 
   private peekTypeError(t: TokenType) {
     this.errors.push(
-      `Expecting token of type ${t}, got token of type ${this.peekToken.token}.`
+      `Expecting token of type ${t}, got token of type ${this.peekToken.type}.`
     );
   }
 }

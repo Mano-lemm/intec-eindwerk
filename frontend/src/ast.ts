@@ -38,7 +38,7 @@ export class LetStatement implements Statement {
   tokenLiteral(): string {
     return String(this.token.literal);
   }
-  public token: token = { token: TokenType.Let, literal: "" };
+  public token: token = { type: TokenType.Let, literal: "" };
   public name: Identifier = new Identifier();
   public val: Expression | undefined;
 }
@@ -75,7 +75,7 @@ export class Identifier implements Expression {
   tokenLiteral(): string {
     return String(this.token.literal);
   }
-  public token: token = { token: TokenType.Ident, literal: "" };
+  public token: token = { type: TokenType.Ident, literal: "" };
   public val = "";
 }
 

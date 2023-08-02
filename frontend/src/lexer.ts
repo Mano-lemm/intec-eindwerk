@@ -12,72 +12,72 @@ export class lexer {
   }
 
   public nextToken(): token {
-    let rt: token = { token: TokenType.Illegal, literal: "" };
+    let rt: token = { type: TokenType.Illegal, literal: "" };
     this.skipWhiteSpace();
     switch (this.ch) {
       case ",":
-        rt = { token: TokenType.Comma, literal: "," };
+        rt = { type: TokenType.Comma, literal: "," };
         break;
       case ";":
-        rt = { token: TokenType.Semicolon, literal: ";" };
+        rt = { type: TokenType.Semicolon, literal: ";" };
         break;
       case ":":
-        rt = { token: TokenType.Colon, literal: ":" };
+        rt = { type: TokenType.Colon, literal: ":" };
         break;
       case "[":
-        rt = { token: TokenType.LeftSquareBrace, literal: "[" };
+        rt = { type: TokenType.LeftSquareBrace, literal: "[" };
         break;
       case "]":
-        rt = { token: TokenType.RightSquareBrace, literal: "]" };
+        rt = { type: TokenType.RightSquareBrace, literal: "]" };
         break;
       case "(":
-        rt = { token: TokenType.LeftRoundBrace, literal: "(" };
+        rt = { type: TokenType.LeftRoundBrace, literal: "(" };
         break;
       case ")":
-        rt = { token: TokenType.RightRoundBrace, literal: ")" };
+        rt = { type: TokenType.RightRoundBrace, literal: ")" };
         break;
       case "{":
-        rt = { token: TokenType.LeftSquirlyBrace, literal: "{" };
+        rt = { type: TokenType.LeftSquirlyBrace, literal: "{" };
         break;
       case "}":
-        rt = { token: TokenType.RightSquirlyBrace, literal: "}" };
+        rt = { type: TokenType.RightSquirlyBrace, literal: "}" };
         break;
       case "=":
         if (this.peekChar() == "=") {
-          rt = { token: TokenType.Equal, literal: "==" };
+          rt = { type: TokenType.Equal, literal: "==" };
           this.readChar();
         } else {
-          rt = { token: TokenType.Assign, literal: "=" };
+          rt = { type: TokenType.Assign, literal: "=" };
         }
         break;
       case "+":
-        rt = { token: TokenType.Plus, literal: "+" };
+        rt = { type: TokenType.Plus, literal: "+" };
         break;
       case "-":
-        rt = { token: TokenType.Minus, literal: "-" };
+        rt = { type: TokenType.Minus, literal: "-" };
         break;
       case "!":
         if (this.peekChar() == "=") {
-          rt = { token: TokenType.NotEqual, literal: "!=" };
+          rt = { type: TokenType.NotEqual, literal: "!=" };
           this.readChar();
         } else {
-          rt = { token: TokenType.Bang, literal: "!" };
+          rt = { type: TokenType.Bang, literal: "!" };
         }
         break;
       case "*":
-        rt = { token: TokenType.Asterisk, literal: "*" };
+        rt = { type: TokenType.Asterisk, literal: "*" };
         break;
       case "/":
-        rt = { token: TokenType.Slash, literal: "/" };
+        rt = { type: TokenType.Slash, literal: "/" };
         break;
       case "<":
-        rt = { token: TokenType.LessThan, literal: "<" };
+        rt = { type: TokenType.LessThan, literal: "<" };
         break;
       case ">":
-        rt = { token: TokenType.GreaterThan, literal: ">" };
+        rt = { type: TokenType.GreaterThan, literal: ">" };
         break;
       case "\0":
-        rt = { token: TokenType.EOF, literal: "" };
+        rt = { type: TokenType.EOF, literal: "" };
         break;
       default:
         // match letter
@@ -88,7 +88,7 @@ export class lexer {
         } else if (this.ch.match(/"/)) {
           rt = this.readStringLiteral();
         } else {
-          rt = { token: TokenType.Illegal, literal: "" };
+          rt = { type: TokenType.Illegal, literal: "" };
         }
         return rt;
     }
@@ -106,7 +106,7 @@ export class lexer {
     } else {
       this.readChar();
     }
-    return { token: TokenType.String, literal: literal };
+    return { type: TokenType.String, literal: literal };
   }
 
   private readIdentifier(): token {
@@ -119,7 +119,7 @@ export class lexer {
     if (type == undefined) {
       type = TokenType.Ident;
     }
-    return { token: type, literal: literal };
+    return { type: type, literal: literal };
   }
 
   private readIntLiteral(): token {
@@ -128,7 +128,7 @@ export class lexer {
       literal += this.ch;
       this.readChar();
     }
-    return { token: TokenType.Int, literal: parseInt(literal) };
+    return { type: TokenType.Int, literal: parseInt(literal) };
   }
 
   private readChar() {
@@ -165,7 +165,7 @@ export function lex(input: string): token[] {
   const tokens: token[] = [];
   const parser = new lexer(input);
   let curTok = parser.nextToken();
-  while (curTok.token != TokenType.EOF && curTok.token != TokenType.Illegal) {
+  while (curTok.type != TokenType.EOF && curTok.type != TokenType.Illegal) {
     tokens.push(curTok);
     curTok = parser.nextToken();
   }
