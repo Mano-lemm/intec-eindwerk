@@ -54,22 +54,22 @@ export class ReturnStatement implements Statement {
   }
 }
 
-export class ExpressionStatement implements Expression {
+export class ExpressionStatement implements Statement {
   constructor(public Token: token, public expr: Expression | undefined) {}
   String(): string {
     return `${this.expr?.String()}`;
   }
-  expression() {}
+  statement() {}
   tokenLiteral(): string {
     return "" + this.Token.literal;
   }
 }
 
-export class Identifier implements Statement {
+export class Identifier implements Expression {
   String(): string {
     return this.val;
   }
-  statement() {}
+  expression() {}
   tokenLiteral(): string {
     return "" + this.token.literal;
   }
