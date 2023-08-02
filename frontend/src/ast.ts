@@ -1,7 +1,4 @@
-import { type token, TokenType } from "./lexer";
-
-export type prefixParseFn = () => Expression;
-export type infixParseFun = (expr: Expression) => Expression;
+import { TokenType, type token } from "./types";
 
 export interface Node {
   tokenLiteral(): string;
@@ -80,4 +77,15 @@ export class Identifier implements Expression {
   }
   public token: token = { token: TokenType.Ident, literal: "" };
   public val = "";
+}
+
+export class IntegerLiteral implements Expression {
+  constructor(public token: token, public val: number) {}
+  expression() {}
+  tokenLiteral(): string {
+    return String(this.token.literal);
+  }
+  String(): string {
+    return this.tokenLiteral();
+  }
 }

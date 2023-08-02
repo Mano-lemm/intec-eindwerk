@@ -3,22 +3,39 @@ import {
   LetStatement,
   Program,
   ReturnStatement,
-  prefixParseFn,
   type Statement,
+  ExpressionStatement,
+  type Expression,
+  IntegerLiteral,
 } from "./ast";
-import { lex, type lexer, type token, TokenType } from "./lexer";
+import { type lexer } from "./lexer";
+import { TokenType, operationOrder, type prefixParseFn, type token } from "./types";
 
 export class Parser {
   private lexer: lexer;
   public errors: string[] = [];
   private curToken: token;
   private peekToken: token;
-  // add back in when actual pratt parsing
-  // private prefixParseFns: Map<TokenType, prefixParseFn> = new Map([
-  //   [[TokenType.Minus], () => {
-  //     return new Identifier();
-  //   }]
-  // ])
+  private prefixParseFns: Map<TokenType, prefixParseFn> = new Map([
+    [
+      TokenType.Ident,
+      () => {
+        const ident = new Identifier();
+        ident.token = this.curToken;
+        ident.val = String(this.curToken.literal);
+        return ident as Expression;
+      },
+    ],
+    [
+      TokenType.Int,
+      () => {
+        return new IntegerLiteral(
+          this.curToken,
+          this.curToken.literal as number
+        ) as Expression;
+      },
+    ],
+  ]);
 
   constructor(l: lexer) {
     this.lexer = l;
@@ -52,7 +69,7 @@ export class Parser {
       case TokenType.Return:
         return this.parseReturnStatement();
       default:
-        return undefined;
+        return this.parseExpressionStatement();
     }
   }
 
@@ -87,6 +104,26 @@ export class Parser {
     }
 
     return statement;
+  }
+
+  private parseExpressionStatement(): ExpressionStatement | undefined {
+    const stmt = new ExpressionStatement(
+      this.curToken,
+      this.parseExpression(operationOrder.LOWEST)
+    );
+
+    if (this.peekTokenIs(TokenType.Semicolon)) {
+      this.nextToken();
+    }
+
+    return stmt;
+  }
+
+  private parseExpression(order: operationOrder): Expression | undefined {
+    if (!this.prefixParseFns.has(this.curToken.token)) {
+      return undefined;
+    }
+    return (this.prefixParseFns.get(this.curToken.token) as prefixParseFn)();
   }
 
   private curTokenIs(t: TokenType): boolean {

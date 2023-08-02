@@ -5,8 +5,9 @@ import {
   LetStatement,
   Program,
 } from "./ast";
-import { lexer, TokenType } from "./lexer";
+import { lexer } from "./lexer";
 import { Parser } from "./parser";
+import { TokenType } from "./types";
 
 function letTest() {
   const tests = [
