@@ -94,7 +94,7 @@ export class PrefixExpression implements Expression {
   constructor(
     public token: token,
     public operator: string,
-    public right: Expression
+    public right: Expression | undefined
   ) {}
   expression() {
     throw new Error("Method not implemented.");
@@ -103,6 +103,6 @@ export class PrefixExpression implements Expression {
     return String(this.token.literal);
   }
   String(): string {
-    return `(${this.operator}${this.right.String()})`;
+    return `(${this.operator}${this.right?.String()})`;
   }
 }
