@@ -38,7 +38,9 @@ export class Parser {
           this.curToken,
           typeof this.curToken.literal === "number"
             ? this.curToken.literal
-            : parseFloat(this.curToken.literal)
+            : this.curToken.literal.includes(".")
+            ? parseFloat(this.curToken.literal)
+            : parseInt(this.curToken.literal)
         ) as Expression;
       },
     ],

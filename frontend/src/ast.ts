@@ -89,3 +89,16 @@ export class IntegerLiteral implements Expression {
     return this.tokenLiteral();
   }
 }
+
+export class PrefixExpression implements Expression {
+  constructor(public token: token, public operator: string, public right: Expression){}
+  expression() {
+    throw new Error("Method not implemented.");
+  }
+  tokenLiteral(): string {
+    return String(this.token.literal)
+  }
+  String(): string {
+    return `(${this.operator}${this.right.String()})`
+  }
+}
