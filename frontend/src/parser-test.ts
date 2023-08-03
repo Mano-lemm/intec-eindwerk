@@ -8,6 +8,7 @@ import {
   ReturnStatement,
   PrefixExpression,
   InfixExpression,
+  BooleanLiteral,
 } from "./ast.ts";
 import { lexer } from "./lexer.ts";
 import { Parser } from "./parser.ts";
@@ -226,9 +227,9 @@ function testParsingPrefixExpressions() {
 function testParsingInfixExpressions() {
   const tests: {
     input: string;
-    leftVal: number;
+    leftVal: number | boolean;
     op: string;
-    rightVal: number;
+    rightVal: number | boolean;
   }[] = [
     { input: "5 + 5;", leftVal: 5, op: "+", rightVal: 5 },
     { input: "5 - 5;", leftVal: 5, op: "-", rightVal: 5 },
@@ -238,6 +239,9 @@ function testParsingInfixExpressions() {
     { input: "5 < 5;", leftVal: 5, op: "<", rightVal: 5 },
     { input: "5 == 5;", leftVal: 5, op: "==", rightVal: 5 },
     { input: "5 != 5;", leftVal: 5, op: "!=", rightVal: 5 },
+    { input: "true == true", leftVal: true, op: "==", rightVal: true },
+    { input: "true != false", leftVal: true, op: "!=", rightVal: false },
+    { input: "false == false", leftVal: false, op: "==", rightVal: false },
   ];
 
   tests.forEach((e) => {
@@ -272,7 +276,7 @@ function testParsingInfixExpressions() {
 
     const exp = prog.statements[0].expr;
 
-    if (!testIntegerLiteral(exp.left, e.leftVal)) {
+    if (!testLiteral(exp.left, e.leftVal)) {
       return;
     }
 
@@ -285,8 +289,31 @@ function testParsingInfixExpressions() {
       return;
     }
 
-    testIntegerLiteral(exp.right, e.rightVal);
+    testLiteral(exp.right, e.rightVal);
   });
+}
+
+function testLiteral(real: Expression, expected: number | boolean): boolean {
+  if (typeof expected == "number") {
+    return testIntegerLiteral(real, expected);
+  } else {
+    return testBooleanLiteral(real, expected);
+  }
+}
+
+function testBooleanLiteral(real: Expression, expected: boolean): boolean {
+  if (!(real instanceof BooleanLiteral)) {
+    console.error(
+      `real is not of type BooleanLiteral, got ${typeof real} instead.`
+    );
+    return false;
+  }
+  const ilit = real;
+  if (ilit.val != expected) {
+    console.error(`Expecting BooleanLiteral val: ${String(expected)}, got ${String(ilit.val)}`);
+    return false;
+  }
+  return true;
 }
 
 function testIntegerLiteral(real: Expression, expected: number): boolean {
@@ -339,6 +366,10 @@ function testOperatorPrecendenceParsing() {
       input: "3 + 4 * 5 == 3 * 1 + 4 * 5",
       expected: "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
     },
+    { input: "true", expected: "true" },
+    { input: "false", expected: "false" },
+    { input: "3 > 5 == false", expected: "((3 > 5) == false)" },
+    { input: "3 < 5 == true", expected: "((3 < 5) == true)" },
   ];
 
   tests.forEach((test) => {

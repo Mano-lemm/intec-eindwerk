@@ -9,6 +9,7 @@ import {
   IntegerLiteral,
   PrefixExpression,
   InfixExpression,
+  BooleanLiteral,
 } from "./ast.ts";
 import { type lexer } from "./lexer.ts";
 import { precedences } from "./maps.ts";
@@ -58,6 +59,18 @@ export class Parser {
       TokenType.Bang,
       () => {
         return this.parsePrefixExpression();
+      },
+    ],
+    [
+      TokenType.True,
+      () => {
+        return this.parseBoolean();
+      },
+    ],
+    [
+      TokenType.False,
+      () => {
+        return this.parseBoolean();
       },
     ],
   ]);
@@ -239,6 +252,10 @@ export class Parser {
       String(cur.literal),
       this.parseExpression(precedence)
     );
+  }
+
+  private parseBoolean(): Expression {
+    return new BooleanLiteral(this.curToken, this.curTokenIs(TokenType.True));
   }
 
   private curTokenIs(t: TokenType): boolean {

@@ -90,6 +90,19 @@ export class IntegerLiteral implements Expression {
   }
 }
 
+export class BooleanLiteral implements Expression {
+  constructor(public token: token, public val: boolean) {}
+  expression() {
+    throw new Error("Method not implemented.");
+  }
+  tokenLiteral(): string {
+    return String(this.token.literal);
+  }
+  String(): string {
+    return String(this.token.literal);
+  }
+}
+
 export class PrefixExpression implements Expression {
   constructor(
     public token: token,
