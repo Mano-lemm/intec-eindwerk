@@ -315,6 +315,38 @@ function checkParserErrors(p: Parser) {
   return false;
 }
 
+function testOperatorPrecendenceParsing() {
+  const tests: {input: string, expected: string}[] = [
+    {input: "-a * b", expected: "((-a) * b)"},
+    {input: "!-a", expected: "(!(-a))"},
+    {input: "a + b + c", expected: "((a + b) + c)"},
+    {input: "a + b - c", expected: "((a + b) - c)"},
+    {input: "a * b * c", expected: "((a * b) * c)"},
+    {input: "a * b / c", expected: "((a * b) / c)"},
+    {input: "a + b / c", expected: "(a + (b / c))"},
+    {input: "a + b * c + d / e - f", expected: "(((a + (b * c)) + (d / e)) - f)"},
+    {input: "3 + 4; -5 * 5", expected: "(3 + 4)((-5) * 5)" },
+    {input: "5 > 4 == 3 < 4", expected: "((5 > 4) == (3 < 4))" },
+    {input: "5 < 4 != 3 > 4", expected: "((5 < 4) != (3 > 4))" },
+    {input: "3 + 4 * 5 == 3 * 1 + 4 * 5", expected: "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"},
+    {input: "3 + 4 * 5 == 3 * 1 + 4 * 5", expected: "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"}
+  ] 
+
+  tests.forEach(test => {
+    const l = new lexer(test.input)
+    const p = new Parser(l)
+    const prog = p.parseProgram()
+    
+    checkParserErrors(p)
+
+    if(prog.toString() != test.expected){
+      console.error(`${test.input} did not parse correctly`)
+      console.error(`\texpected:${test.expected}`)
+      console.error(`\treal    :${prog.toString()}`)
+    }
+  });
+}
+
 letTest();
 returnTest();
 testString();
@@ -322,3 +354,4 @@ testIdentifierExpr();
 testIntegerLiteralExpression();
 testParsingPrefixExpressions();
 testParsingInfixExpressions();
+testOperatorPrecendenceParsing();
