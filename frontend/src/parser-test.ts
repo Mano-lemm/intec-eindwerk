@@ -7,6 +7,7 @@ import {
   IntegerLiteral,
   ReturnStatement,
   PrefixExpression,
+  InfixExpression,
 } from "./ast.ts";
 import { lexer } from "./lexer.ts";
 import { Parser } from "./parser.ts";
@@ -33,8 +34,6 @@ function letTest() {
         `program doesn't contain 1 statement. len(prog)=${program.statements.length}`
       );
     }
-
-    // console.log(`parsed: ${JSON.stringify(program.statements)}`);
   }
 }
 
@@ -192,47 +191,117 @@ function testParsingPrefixExpressions() {
     }
 
     if (!(prog.statements[0] instanceof ExpressionStatement)) {
-      console.log(
+      console.error(
         `statement is not an ExpressionStatement, got ${typeof prog
           .statements[0]} instead.`
       );
       continue;
     }
 
-    if (
-      !(
-        (prog.statements[0] ).expr instanceof
-        PrefixExpression
-      )
-    ) {
-      console.log(
+    if (!(prog.statements[0].expr instanceof PrefixExpression)) {
+      console.error(
         `statement is not an PrefixExpression, got ${typeof prog
           .statements[0]} instead.`
       );
       continue;
     }
 
-    const exp = (prog.statements[0] )
-      .expr ;
+    const exp = prog.statements[0].expr;
 
     if (exp.operator != test.operator) {
-      console.log(
+      console.error(
         `exp.operator != \"${test.operator}\", got ${exp.operator} instead.`
       );
     }
 
-    if (!testIntegerLiteral(exp.right, test.int)) {
-      console.error(`amogussy`);
+    if (exp.right == undefined) {
+      console.error("xdddd");
+      continue;
     }
+
+    testIntegerLiteral(exp.right, test.int);
   }
+}
+
+function testParsingInfixExpressions() {
+  const tests: {
+    input: string;
+    leftVal: number;
+    op: string;
+    rightVal: number;
+  }[] = [
+    { input: "5 + 5;", leftVal: 5, op: "+", rightVal: 5 },
+    { input: "5 - 5;", leftVal: 5, op: "-", rightVal: 5 },
+    { input: "5 * 5;", leftVal: 5, op: "*", rightVal: 5 },
+    { input: "5 / 5;", leftVal: 5, op: "/", rightVal: 5 },
+    { input: "5 > 5;", leftVal: 5, op: ">", rightVal: 5 },
+    { input: "5 < 5;", leftVal: 5, op: "<", rightVal: 5 },
+    { input: "5 == 5;", leftVal: 5, op: "==", rightVal: 5 },
+    { input: "5 != 5;", leftVal: 5, op: "!=", rightVal: 5 },
+  ];
+
+  tests.forEach((e) => {
+    const l = new lexer(e.input);
+    const p = new Parser(l);
+    const prog = p.parseProgram();
+
+    checkParserErrors(p);
+
+    if (prog.statements.length != 1) {
+      console.error(
+        `len(prog.statements) != 1, got ${prog.statements.length} instead.`
+      );
+      return;
+    }
+
+    if (!(prog.statements[0] instanceof ExpressionStatement)) {
+      console.error(
+        `statement is not an ExpressionStatement, got ${typeof prog
+          .statements[0]} instead.`
+      );
+      return;
+    }
+
+    if (!(prog.statements[0].expr instanceof InfixExpression)) {
+      console.error(
+        `statement is not an InfixExpression, got ${typeof prog
+          .statements[0]} instead.`
+      );
+      return;
+    }
+
+    const exp = prog.statements[0].expr ;
+
+    if (!testIntegerLiteral(exp.left, e.leftVal)) {
+      return;
+    }
+
+    if (exp.oper != e.op) {
+      console.error(`exp.operator != \"${e.op}\", got ${exp.oper} instead.`);
+    }
+
+    if (exp.right == undefined) {
+      console.error("right is undefined");
+      return;
+    }
+
+    testIntegerLiteral(exp.right, e.rightVal);
+  });
 }
 
 function testIntegerLiteral(real: Expression, expected: number): boolean {
   if (!(real instanceof IntegerLiteral)) {
+    console.error(
+      `real is not of type IntegerLiteral, got ${typeof real} instead.`
+    );
     return false;
   }
-  const ilit = real ;
-  return ilit.val == expected;
+  const ilit = real;
+  if (ilit.val != expected) {
+    console.error(`Expecting IntegerLiteral val: ${expected}, got ${ilit.val}`);
+    return false;
+  }
+  return true;
 }
 
 function checkParserErrors(p: Parser) {
@@ -252,3 +321,4 @@ testString();
 testIdentifierExpr();
 testIntegerLiteralExpression();
 testParsingPrefixExpressions();
+testParsingInfixExpressions();

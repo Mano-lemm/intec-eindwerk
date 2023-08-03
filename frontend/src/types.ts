@@ -1,7 +1,7 @@
 import { type Expression } from "./ast.ts";
 
 export type prefixParseFn = () => Expression;
-export type infixParseFun = (expr: Expression) => Expression;
+export type infixParseFn = (expr: Expression) => Expression;
 
 export enum TokenType {
   //special
@@ -49,16 +49,6 @@ export enum TokenType {
 }
 
 export type token = { type: TokenType; literal: string | number };
-
-export const keywords: Record<string, TokenType> = {
-  fn: TokenType.Function,
-  let: TokenType.Let,
-  true: TokenType.True,
-  false: TokenType.False,
-  if: TokenType.If,
-  else: TokenType.Else,
-  return: TokenType.Return,
-} as const;
 
 export enum operationOrder {
   LOWEST = 0,

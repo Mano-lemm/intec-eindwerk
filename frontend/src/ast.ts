@@ -103,6 +103,28 @@ export class PrefixExpression implements Expression {
     return String(this.token.literal);
   }
   String(): string {
-    return `(${this.operator}${this.right != undefined ? this.right.String() : ""})`;
+    return `(${this.operator}${
+      this.right != undefined ? this.right.String() : ""
+    })`;
+  }
+}
+
+export class InfixExpression implements Expression {
+  constructor(
+    public token: token,
+    public left: Expression,
+    public oper: string,
+    public right: Expression | undefined
+  ) {}
+  expression() {
+    throw new Error("Method not implemented.");
+  }
+  tokenLiteral(): string {
+    return String(this.token.literal);
+  }
+  String(): string {
+    return `(${this.left.String()} ${this.oper} ${
+      this.right != undefined ? this.right.String() : ""
+    })`;
   }
 }

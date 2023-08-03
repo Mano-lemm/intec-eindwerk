@@ -1,4 +1,5 @@
-import { TokenType, keywords, type token } from "./types.ts";
+import { keywords } from "./maps.ts";
+import { TokenType, type token } from "./types.ts";
 
 export class lexer {
   private input = "";
@@ -95,6 +96,7 @@ export class lexer {
     this.readChar();
     return rt;
   }
+
   readStringLiteral(): token {
     let literal = "";
     while (this.ch.match(/[a-z]/i) || this.ch.match(/_/)) {
