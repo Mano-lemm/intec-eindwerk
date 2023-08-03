@@ -103,6 +103,6 @@ export class PrefixExpression implements Expression {
     return String(this.token.literal);
   }
   String(): string {
-    return `(${this.operator}${this.right?.String()})`;
+    return `(${this.operator}${this.right != undefined ? this.right.String() : ""})`;
   }
 }

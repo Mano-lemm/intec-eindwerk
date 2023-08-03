@@ -201,7 +201,7 @@ function testParsingPrefixExpressions() {
 
     if (
       !(
-        (prog.statements[0] as ExpressionStatement).expr instanceof
+        (prog.statements[0] ).expr instanceof
         PrefixExpression
       )
     ) {
@@ -212,8 +212,8 @@ function testParsingPrefixExpressions() {
       continue;
     }
 
-    const exp = (prog.statements[0] as ExpressionStatement)
-      .expr as PrefixExpression;
+    const exp = (prog.statements[0] )
+      .expr ;
 
     if (exp.operator != test.operator) {
       console.log(
@@ -231,7 +231,7 @@ function testIntegerLiteral(real: Expression, expected: number): boolean {
   if (!(real instanceof IntegerLiteral)) {
     return false;
   }
-  const ilit = real as IntegerLiteral;
+  const ilit = real ;
   return ilit.val == expected;
 }
 

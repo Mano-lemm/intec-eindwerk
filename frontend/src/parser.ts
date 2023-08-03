@@ -7,7 +7,7 @@ import {
   ExpressionStatement,
   type Expression,
   IntegerLiteral,
-PrefixExpression,
+  PrefixExpression,
 } from "./ast.ts";
 import { type lexer } from "./lexer.ts";
 import {
@@ -45,12 +45,18 @@ export class Parser {
         ) as Expression;
       },
     ],
-    [TokenType.Minus, () => {
-      return this.parsePrefixExpression()
-    }],
-    [TokenType.Bang, () => {
-      return this.parsePrefixExpression()
-    }]
+    [
+      TokenType.Minus,
+      () => {
+        return this.parsePrefixExpression();
+      },
+    ],
+    [
+      TokenType.Bang,
+      () => {
+        return this.parsePrefixExpression();
+      },
+    ],
   ]);
 
   constructor(l: lexer) {
@@ -137,17 +143,23 @@ export class Parser {
 
   private parseExpression(order: operationOrder): Expression | undefined {
     if (!this.prefixParseFns.has(this.curToken.type)) {
-      this.errors.push(`missing prefix parse function for ${this.curToken.type}`)
+      this.errors.push(
+        `missing prefix parse function for ${this.curToken.type}`
+      );
       return undefined;
     }
     return (this.prefixParseFns.get(this.curToken.type) as prefixParseFn)();
   }
 
   private parsePrefixExpression(): Expression {
-      let lastToken = this.curToken; 
-      this.nextToken()
-      let expr = new PrefixExpression(lastToken, String(lastToken.literal), this.parseExpression(operationOrder.PREFIX))
-      return expr;
+    const lastToken = this.curToken;
+    this.nextToken();
+    const expr = new PrefixExpression(
+      lastToken,
+      String(lastToken.literal),
+      this.parseExpression(operationOrder.PREFIX)
+    );
+    return expr;
   }
 
   private curTokenIs(t: TokenType): boolean {
