@@ -172,9 +172,11 @@ function testIntegerLiteralExpression() {
 }
 
 function testParsingPrefixExpressions() {
-  const input = [
-    { input: "!5;", operator: "!", int: 5 },
-    { input: "-15", operator: "-", int: 15 },
+  const input: {input: string, operator: string, expr: number | boolean}[] = [
+    { input: "!5;", operator: "!", expr: 5 },
+    { input: "-15", operator: "-", expr: 15 },
+    { input: "!true;", operator: "!", expr: true},
+    { input: "!false;", operator: "!", expr: false},
   ];
 
   for (const test of input) {
@@ -220,7 +222,7 @@ function testParsingPrefixExpressions() {
       continue;
     }
 
-    testIntegerLiteral(exp.right, test.int);
+    testLiteral(exp.right, test.expr);
   }
 }
 
