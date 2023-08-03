@@ -1,4 +1,4 @@
-import { TokenType, type token } from "./types";
+import { TokenType, type token } from "./types.ts";
 
 export interface Node {
   tokenLiteral(): string;
@@ -91,14 +91,18 @@ export class IntegerLiteral implements Expression {
 }
 
 export class PrefixExpression implements Expression {
-  constructor(public token: token, public operator: string, public right: Expression){}
+  constructor(
+    public token: token,
+    public operator: string,
+    public right: Expression
+  ) {}
   expression() {
     throw new Error("Method not implemented.");
   }
   tokenLiteral(): string {
-    return String(this.token.literal)
+    return String(this.token.literal);
   }
   String(): string {
-    return `(${this.operator}${this.right.String()})`
+    return `(${this.operator}${this.right.String()})`;
   }
 }

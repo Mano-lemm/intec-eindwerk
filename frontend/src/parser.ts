@@ -7,14 +7,14 @@ import {
   ExpressionStatement,
   type Expression,
   IntegerLiteral,
-} from "./ast";
-import { type lexer } from "./lexer";
+} from "./ast.ts";
+import { type lexer } from "./lexer.ts";
 import {
   TokenType,
   operationOrder,
   type prefixParseFn,
   type token,
-} from "./types";
+} from "./types.ts";
 
 export class Parser {
   private lexer: lexer;

@@ -1,4 +1,4 @@
-import { type Expression } from "./ast";
+import { type Expression } from "./ast.ts";
 
 export type prefixParseFn = () => Expression;
 export type infixParseFun = (expr: Expression) => Expression;

@@ -1,4 +1,4 @@
-import { TokenType, keywords, type token } from "./types";
+import { TokenType, keywords, type token } from "./types.ts";
 
 export class lexer {
   private input = "";

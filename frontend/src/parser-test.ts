@@ -7,10 +7,10 @@ import {
   IntegerLiteral,
   ReturnStatement,
   PrefixExpression,
-} from "./ast";
-import { lexer } from "./lexer";
-import { Parser } from "./parser";
-import { TokenType } from "./types";
+} from "./ast.ts";
+import { lexer } from "./lexer.ts";
+import { Parser } from "./parser.ts";
+import { TokenType } from "./types.ts";
 
 function letTest() {
   const tests = [
@@ -173,47 +173,66 @@ function testIntegerLiteralExpression() {
 
 function testParsingPrefixExpressions() {
   const input = [
-    {input: "!5;", operator: "!", int: 5},
-    {input: "-15", operator: "-", int: 15}
-  ]
+    { input: "!5;", operator: "!", int: 5 },
+    { input: "-15", operator: "-", int: 15 },
+  ];
 
-  for(const test of input){
-    const l = new lexer(test.input)
-    const p = new Parser(l)
-    const prog = p.parseProgram()
+  for (const test of input) {
+    const l = new lexer(test.input);
+    const p = new Parser(l);
+    const prog = p.parseProgram();
 
-    checkParserErrors(p)
+    checkParserErrors(p);
 
-    if(prog.statements.length != 1){
-      console.error(`len(prog.statements) != 1, got ${prog.statements.length} instead.`)
+    if (prog.statements.length != 1) {
+      console.error(
+        `len(prog.statements) != 1, got ${prog.statements.length} instead.`
+      );
+      continue;
     }
 
-    if(!(prog.statements[0] instanceof ExpressionStatement)){
-      console.log(`statement is not an ExpressionStatement, got ${typeof prog.statements[0]} instead.`)
+    if (!(prog.statements[0] instanceof ExpressionStatement)) {
+      console.log(
+        `statement is not an ExpressionStatement, got ${typeof prog
+          .statements[0]} instead.`
+      );
+      continue;
     }
 
-    if(!((prog.statements[0] as ExpressionStatement).expr instanceof PrefixExpression)){
-      console.log(`statement is not an PrefixExpression, got ${typeof prog.statements[0]} instead.`)
+    if (
+      !(
+        (prog.statements[0] as ExpressionStatement).expr instanceof
+        PrefixExpression
+      )
+    ) {
+      console.log(
+        `statement is not an PrefixExpression, got ${typeof prog
+          .statements[0]} instead.`
+      );
+      continue;
     }
 
-    const exp = (prog.statements[0] as ExpressionStatement).expr as PrefixExpression;
+    const exp = (prog.statements[0] as ExpressionStatement)
+      .expr as PrefixExpression;
 
-    if(exp.operator != test.operator){
-      console.log(`exp.operator != \"${test.operator}\", got ${exp.operator} instead.`)
+    if (exp.operator != test.operator) {
+      console.log(
+        `exp.operator != \"${test.operator}\", got ${exp.operator} instead.`
+      );
     }
 
-    if(!testIntegerLiteral(exp.right, test.int)){
-      console.error(`amogussy`)
+    if (!testIntegerLiteral(exp.right, test.int)) {
+      console.error(`amogussy`);
     }
   }
 }
 
-function testIntegerLiteral(real: Expression, expected: number): boolean{
-  if(!(real instanceof IntegerLiteral)){
+function testIntegerLiteral(real: Expression, expected: number): boolean {
+  if (!(real instanceof IntegerLiteral)) {
     return false;
   }
   const ilit = real as IntegerLiteral;
-  return ilit.val == expected
+  return ilit.val == expected;
 }
 
 function checkParserErrors(p: Parser) {
@@ -232,3 +251,4 @@ returnTest();
 testString();
 testIdentifierExpr();
 testIntegerLiteralExpression();
+testParsingPrefixExpressions();
