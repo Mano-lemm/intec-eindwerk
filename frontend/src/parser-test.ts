@@ -172,11 +172,11 @@ function testIntegerLiteralExpression() {
 }
 
 function testParsingPrefixExpressions() {
-  const input: {input: string, operator: string, expr: number | boolean}[] = [
+  const input: { input: string; operator: string; expr: number | boolean }[] = [
     { input: "!5;", operator: "!", expr: 5 },
     { input: "-15", operator: "-", expr: 15 },
-    { input: "!true;", operator: "!", expr: true},
-    { input: "!false;", operator: "!", expr: false},
+    { input: "!true;", operator: "!", expr: true },
+    { input: "!false;", operator: "!", expr: false },
   ];
 
   for (const test of input) {
@@ -227,12 +227,17 @@ function testParsingPrefixExpressions() {
 }
 
 function testParsingInfixExpressions() {
-  const tests: {
+  const tests: ({
     input: string;
-    leftVal: number | boolean;
+    leftVal: number;
     op: string;
-    rightVal: number | boolean;
-  }[] = [
+    rightVal: number;
+  } | {
+    input: string;
+    leftVal: boolean;
+    op: string;
+    rightVal: boolean;
+  })[] = [
     { input: "5 + 5;", leftVal: 5, op: "+", rightVal: 5 },
     { input: "5 - 5;", leftVal: 5, op: "-", rightVal: 5 },
     { input: "5 * 5;", leftVal: 5, op: "*", rightVal: 5 },
@@ -312,7 +317,11 @@ function testBooleanLiteral(real: Expression, expected: boolean): boolean {
   }
   const ilit = real;
   if (ilit.val != expected) {
-    console.error(`Expecting BooleanLiteral val: ${String(expected)}, got ${String(ilit.val)}`);
+    console.error(
+      `Expecting BooleanLiteral val: ${String(expected)}, got ${String(
+        ilit.val
+      )}`
+    );
     return false;
   }
   return true;
