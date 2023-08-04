@@ -6,11 +6,11 @@ export interface Node {
 }
 
 export interface Statement extends Node {
-  statement(): any;
+  statement(): void;
 }
 
 export interface Expression extends Node {
-  expression(): any;
+  expression(): void;
 }
 
 export class Program {
@@ -34,7 +34,9 @@ export class LetStatement implements Statement {
       this.val !== undefined ? this.val.String() : ""
     };`;
   }
-  statement() {}
+  statement() {
+    throw new Error("Method not implemented.");
+  }
   tokenLiteral(): string {
     return String(this.token.literal);
   }
@@ -50,7 +52,9 @@ export class ReturnStatement implements Statement {
       this.rval !== undefined ? this.rval.String() : ""
     };`;
   }
-  statement() {}
+  statement() {
+    throw new Error("Method not implemented.");
+  }
   tokenLiteral(): string {
     return String(this.Token.literal);
   }
@@ -61,9 +65,28 @@ export class ExpressionStatement implements Statement {
   String(): string {
     return `${this.expr !== undefined ? this.expr.String() : ""}`;
   }
-  statement() {}
+  statement() {
+    throw new Error("Method not implemented.");
+  }
   tokenLiteral(): string {
     return String(this.Token.literal);
+  }
+}
+
+export class BlockStatement implements Statement {
+  constructor(public token: token, public statements: Statement[]) {}
+  statement() {
+    throw new Error("Method not implemented.");
+  }
+  tokenLiteral(): string {
+    return String(this.token.literal);
+  }
+  String(): string {
+    let str = "";
+    this.statements.forEach((e) => {
+      str += e.String();
+    });
+    return str;
   }
 }
 
@@ -71,7 +94,9 @@ export class Identifier implements Expression {
   String(): string {
     return this.val;
   }
-  expression() {}
+  expression() {
+    throw new Error("Method not implemented.");
+  }
   tokenLiteral(): string {
     return String(this.token.literal);
   }
@@ -81,7 +106,9 @@ export class Identifier implements Expression {
 
 export class IntegerLiteral implements Expression {
   constructor(public token: token, public val: number) {}
-  expression() {}
+  expression() {
+    throw new Error("Method not implemented.");
+  }
   tokenLiteral(): string {
     return String(this.token.literal);
   }
@@ -139,5 +166,27 @@ export class InfixExpression implements Expression {
     return `(${this.left.String()} ${this.oper} ${
       this.right != undefined ? this.right.String() : ""
     })`;
+  }
+}
+
+export class IfExpression implements Expression {
+  constructor(
+    public token: token,
+    public condition: Expression,
+    public consequence: BlockStatement,
+    public alternative: BlockStatement | undefined
+  ) {}
+  expression() {
+    throw new Error("Method not implemented.");
+  }
+  tokenLiteral(): string {
+    return String(this.token.literal);
+  }
+  String(): string {
+    let str = `if${this.condition.String()} ${this.consequence.String()}`;
+    if (this.alternative != undefined) {
+      str += `else ${this.alternative.String()}`;
+    }
+    return str;
   }
 }

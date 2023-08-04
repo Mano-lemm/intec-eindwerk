@@ -73,6 +73,12 @@ export class Parser {
         return this.parseBoolean();
       },
     ],
+    [
+      TokenType.LeftRoundBrace,
+      () => {
+        return this.parseGroupedExpression();
+      },
+    ],
   ]);
   private infixParseFns: Map<TokenType, infixParseFn> = new Map([
     [
@@ -252,6 +258,19 @@ export class Parser {
       String(cur.literal),
       this.parseExpression(precedence)
     );
+  }
+
+  private parseGroupedExpression(): Expression {
+    this.nextToken();
+
+    const exp = this.parseExpression(operationOrder.LOWEST);
+
+    if (!this.expectPeek(TokenType.RightRoundBrace) || exp == undefined) {
+      console.error(`this is fucked up man`);
+      return new Identifier();
+    }
+
+    return exp;
   }
 
   private parseBoolean(): Expression {
