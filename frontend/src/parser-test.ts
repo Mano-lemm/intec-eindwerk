@@ -499,7 +499,7 @@ function testFunctionLiteralParsing() {
     );
     return;
   }
-  const statement = prog.statements[0] ;
+  const statement = prog.statements[0];
 
   if (!(statement.expr instanceof FunctionLiteral)) {
     console.error(
@@ -508,7 +508,7 @@ function testFunctionLiteralParsing() {
     );
     return;
   }
-  const func = statement.expr ;
+  const func = statement.expr;
 
   if (func.parameters.length != 2) {
     console.error(
@@ -534,7 +534,7 @@ function testFunctionLiteralParsing() {
     return;
   }
 
-  const bodyStmt = func.body.statements[0] ;
+  const bodyStmt = func.body.statements[0];
   if (bodyStmt.expr == undefined) {
     console.error(
       `bodyStmt.expr is not Expression, got ${typeof bodyStmt.expr} instead.`
@@ -542,6 +542,43 @@ function testFunctionLiteralParsing() {
     return;
   }
   testInfixExpression(bodyStmt.expr, "x", "+", "y");
+}
+
+function testFunctionParameterParsing() {
+  const tests: { input: string; expected: string[] }[] = [
+    { input: "fn(){}", expected: [] },
+    { input: "fn(x) {}", expected: ["x"] },
+    { input: "fn(x, y, z) {}", expected: ["x", "y", "z"] },
+  ];
+
+  for (const test of tests) {
+    const l = new lexer(test.input);
+    const p = new Parser(l);
+    const prog = p.parseProgram();
+    if (checkParserErrors(p)) {
+      continue;
+    }
+
+    if (!(prog.statements[0] instanceof ExpressionStatement)) {
+      console.error(
+        `Expected ExpressionStatement, got ${typeof prog.statements[0]} instead`
+      );
+      continue;
+    }
+
+    if (!(prog.statements[0].expr instanceof FunctionLiteral)) {
+      console.error(
+        `Expected FunctionLiteral, got ${typeof prog.statements[0]
+          .expr} instead`
+      );
+      continue;
+    }
+
+    // lovely
+    prog.statements[0].expr.parameters.forEach((ident, idx) => {
+      testLiteral(ident, test.expected[idx]);
+    });
+  }
 }
 
 letTest();
@@ -555,3 +592,4 @@ testOperatorPrecendenceParsing();
 testIfExpressions();
 testParsingIfElseExpression();
 testFunctionLiteralParsing();
+testFunctionParameterParsing();
