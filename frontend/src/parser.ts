@@ -10,6 +10,8 @@ import {
   PrefixExpression,
   InfixExpression,
   BooleanLiteral,
+  IfExpression,
+  BlockStatement,
 } from "./ast.ts";
 import { type lexer } from "./lexer.ts";
 import { precedences } from "./maps.ts";
@@ -77,6 +79,12 @@ export class Parser {
       TokenType.LeftRoundBrace,
       () => {
         return this.parseGroupedExpression();
+      },
+    ],
+    [
+      TokenType.If,
+      () => {
+        return this.parseIfExpression();
       },
     ],
   ]);
@@ -215,6 +223,9 @@ export class Parser {
 
   private parseExpression(order: operationOrder): Expression | undefined {
     if (!this.prefixParseFns.has(this.curToken.type)) {
+      this.errors.push(
+        `no prefix parse function found for ${String(this.curToken.literal)}`
+      );
       return undefined;
     }
     let leftExpr = (
@@ -260,13 +271,64 @@ export class Parser {
     );
   }
 
+  private parseIfExpression(): Expression {
+    const cur = this.curToken;
+    if (!this.expectPeek(TokenType.LeftRoundBrace)) {
+      this.errors.push(`Expected \"(\", got ${String(this.peekToken.literal)}`);
+      return new Identifier();
+    }
+    this.nextToken();
+    const cond = this.parseExpression(operationOrder.LOWEST);
+    if (cond == undefined) {
+      this.errors.push(`Expected expression, got undefined`);
+      return new Identifier();
+    }
+    if (!this.expectPeek(TokenType.RightRoundBrace)) {
+      this.errors.push(`Expected \")\", got ${String(this.peekToken.literal)}`);
+      return new Identifier();
+    }
+    if (!this.expectPeek(TokenType.LeftSquirlyBrace)) {
+      this.errors.push(`Expected \"{\", got ${String(this.peekToken.literal)}`);
+      return new Identifier();
+    }
+    const consequence = this.parseBlockStatement();
+    if (this.peekTokenIs(TokenType.Else)) {
+      this.nextToken();
+      if (!this.expectPeek(TokenType.LeftSquirlyBrace)) {
+        this.errors.push(`Expected "{", got ${String(this.peekToken.literal)}`);
+        return new IfExpression(cur, cond, consequence, undefined);
+      }
+      const alternative = this.parseBlockStatement();
+      return new IfExpression(cur, cond, consequence, alternative);
+    }
+    return new IfExpression(cur, cond, consequence, undefined);
+  }
+
+  private parseBlockStatement(): BlockStatement {
+    const block = new BlockStatement(this.curToken, []);
+    this.nextToken();
+    while (
+      !this.curTokenIs(TokenType.RightSquirlyBrace) &&
+      !this.curTokenIs(TokenType.EOF)
+    ) {
+      const stmt = this.parseStatement();
+      if (stmt != undefined) {
+        block.statements.push(stmt);
+      }
+      this.nextToken();
+    }
+    return block;
+  }
+
   private parseGroupedExpression(): Expression {
     this.nextToken();
 
     const exp = this.parseExpression(operationOrder.LOWEST);
 
     if (!this.expectPeek(TokenType.RightRoundBrace) || exp == undefined) {
-      console.error(`this is fucked up man`);
+      this.errors.push(
+        `Exprected \")\", got ${String(this.peekToken.literal)}`
+      );
       return new Identifier();
     }
 

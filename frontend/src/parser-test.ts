@@ -8,11 +8,16 @@ import {
   ReturnStatement,
   PrefixExpression,
   InfixExpression,
-  BooleanLiteral,
+  IfExpression,
 } from "./ast.ts";
 import { lexer } from "./lexer.ts";
 import { Parser } from "./parser.ts";
 import { TokenType } from "./types.ts";
+import {
+  checkParserErrors,
+  testInfixExpression,
+  testLiteral,
+} from "./test-helper.ts";
 
 function letTest() {
   const tests = [
@@ -303,59 +308,6 @@ function testParsingInfixExpressions() {
   });
 }
 
-function testLiteral(real: Expression, expected: number | boolean): boolean {
-  if (typeof expected == "number") {
-    return testIntegerLiteral(real, expected);
-  } else {
-    return testBooleanLiteral(real, expected);
-  }
-}
-
-function testBooleanLiteral(real: Expression, expected: boolean): boolean {
-  if (!(real instanceof BooleanLiteral)) {
-    console.error(
-      `real is not of type BooleanLiteral, got ${typeof real} instead.`
-    );
-    return false;
-  }
-  const ilit = real;
-  if (ilit.val != expected) {
-    console.error(
-      `Expecting BooleanLiteral val: ${String(expected)}, got ${String(
-        ilit.val
-      )}`
-    );
-    return false;
-  }
-  return true;
-}
-
-function testIntegerLiteral(real: Expression, expected: number): boolean {
-  if (!(real instanceof IntegerLiteral)) {
-    console.error(
-      `real is not of type IntegerLiteral, got ${typeof real} instead.`
-    );
-    return false;
-  }
-  const ilit = real;
-  if (ilit.val != expected) {
-    console.error(`Expecting IntegerLiteral val: ${expected}, got ${ilit.val}`);
-    return false;
-  }
-  return true;
-}
-
-function checkParserErrors(p: Parser) {
-  if (p.errors.length != 0) {
-    console.error(`parser has ${p.errors.length} errors:`);
-    for (const err of p.errors) {
-      console.error(`\t${err}`);
-    }
-    return true;
-  }
-  return false;
-}
-
 function testOperatorPrecendenceParsing() {
   const tests: { input: string; expected: string }[] = [
     { input: "-a * b", expected: "((-a) * b)" },
@@ -406,6 +358,122 @@ function testOperatorPrecendenceParsing() {
   });
 }
 
+function testIfExpressions() {
+  const input = "if (x < y ) { x }";
+  const l = new lexer(input);
+  const p = new Parser(l);
+  const prog = p.parseProgram();
+  if (checkParserErrors(p)) {
+    return;
+  }
+
+  if (prog.statements.length != 1) {
+    console.error(
+      `len(program.statements) != 1, got ${prog.statements.length} instead.`
+    );
+    return;
+  }
+
+  if (!(prog.statements[0] instanceof ExpressionStatement)) {
+    console.error(
+      `prog.statements[0] is not an ExpressionStatement, got ${typeof prog
+        .statements[0]} instead.`
+    );
+    return;
+  }
+
+  const stmt = prog.statements[0];
+
+  if (!(stmt.expr instanceof IfExpression)) {
+    console.error(
+      `stmt.expr is not of type IfExpression, got ${typeof stmt} instead.`
+    );
+    return;
+  }
+
+  const exp = stmt.expr;
+
+  if (!testInfixExpression(exp.condition, "x", "<", "y")) {
+    return;
+  }
+
+  if (exp.alternative != undefined) {
+    console.error(
+      `exp.alt was not nill, got ${JSON.stringify(exp.alternative)} instead.`
+    );
+    return;
+  }
+}
+
+function testParsingIfElseExpression() {
+  const input = "if (x < y) { x } else { y }";
+  const l = new lexer(input);
+  const p = new Parser(l);
+  const prog = p.parseProgram();
+
+  if (checkParserErrors(p)) {
+    return;
+  }
+
+  if (prog.statements.length != 1) {
+    console.error(
+      `len(program.statements) != 1, got ${prog.statements.length} instead.`
+    );
+    return;
+  }
+
+  let stmt = prog.statements[0] as ExpressionStatement;
+
+  if (!(stmt.expr instanceof IfExpression)) {
+    console.error(
+      `stmt.expr is not of type IfExpression, got ${typeof stmt} instead.`
+    );
+    return;
+  }
+
+  const exp = stmt.expr;
+
+  if (!testInfixExpression(exp.condition, "x", "<", "y")) {
+    return;
+  }
+
+  if (exp.alternative == undefined) {
+    console.error(`exp.alternative is undefined`);
+    return;
+  }
+
+  if (exp.alternative.statements.length != 1) {
+    console.error(
+      `alt.statements.len != 1, got ${exp.alternative.statement.length} instead.`
+    );
+    return;
+  }
+
+  if (!(exp.alternative.statements[0] instanceof ExpressionStatement)) {
+    console.error(
+      `alt.statements[0] is not of type ExpressionStatement, got ${typeof exp
+        .alternative.statements[0]} instead.`
+    );
+    return;
+  }
+
+  stmt = exp.alternative.statements[0];
+
+  if (!(stmt.expr instanceof Identifier)) {
+    console.error(
+      `alt.expr is not of type Identifier, got ${typeof stmt.expr} instead.`
+    );
+    return;
+  }
+
+  if (!testLiteral(stmt.expr, "y")) {
+    console.error(
+      `alt.expr.literal is not \"y\", got ${stmt.expr.token.literal} instead.`
+    );
+    return;
+  }
+}
+
 letTest();
 returnTest();
 testString();
@@ -414,3 +482,5 @@ testIntegerLiteralExpression();
 testParsingPrefixExpressions();
 testParsingInfixExpressions();
 testOperatorPrecendenceParsing();
+testIfExpressions();
+testParsingIfElseExpression();
