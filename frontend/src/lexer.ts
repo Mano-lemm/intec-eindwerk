@@ -164,6 +164,7 @@ export class lexer {
   }
 }
 
+// useful for debugging purposes
 export function lex(input: string): token[] {
   const tokens: token[] = [];
   const parser = new lexer(input);

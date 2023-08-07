@@ -12,7 +12,7 @@ import {
   FunctionLiteral,
   CallExpression,
 } from "./ast.ts";
-import { lex, lexer } from "./lexer.ts";
+import { lexer } from "./lexer.ts";
 import { Parser } from "./parser.ts";
 import { TokenType } from "./types.ts";
 import {
@@ -52,7 +52,7 @@ function testLet() {
       continue;
     }
 
-    const stmt = program.statements[0] as LetStatement;
+    const stmt = program.statements[0];
     if (!testLiteral(stmt.name, test.expectedIdent)) {
       continue;
     }
