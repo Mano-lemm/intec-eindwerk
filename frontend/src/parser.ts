@@ -14,6 +14,7 @@ import {
   BlockStatement,
   FunctionLiteral,
   CallExpression,
+  StringLiteral,
 } from "./ast.ts";
 import { type lexer } from "./lexer.ts";
 import { precedences } from "./maps.ts";
@@ -57,6 +58,12 @@ export class Parser {
             ? parseFloat(this.curToken.literal)
             : parseInt(this.curToken.literal)
         ) as Expression;
+      },
+    ],
+    [
+      TokenType.String,
+      () => {
+        return new StringLiteral(this.curToken, String(this.curToken.literal));
       },
     ],
     [
@@ -207,8 +214,8 @@ export class Parser {
     if (!this.expectPeek(TokenType.Assign)) {
       return undefined;
     }
-
-    // TODO: not skip expr
+    this.nextToken();
+    statement.val = this.parseExpression(operationOrder.LOWEST);
     while (!this.curTokenIs(TokenType.Semicolon)) {
       this.nextToken();
     }
@@ -220,6 +227,8 @@ export class Parser {
     const statement = new ReturnStatement(this.curToken, undefined);
 
     this.nextToken();
+
+    statement.rval = this.parseExpression(operationOrder.LOWEST);
 
     while (!this.curTokenIs(TokenType.Semicolon)) {
       this.nextToken();

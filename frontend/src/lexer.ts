@@ -99,6 +99,7 @@ export class lexer {
 
   readStringLiteral(): token {
     let literal = "";
+    this.readChar();
     while (this.ch.match(/[a-z]/i) || this.ch.match(/_/)) {
       literal += this.ch;
       this.readChar();

@@ -12,7 +12,7 @@ import {
   FunctionLiteral,
   CallExpression,
 } from "./ast.ts";
-import { lexer } from "./lexer.ts";
+import { lex, lexer } from "./lexer.ts";
 import { Parser } from "./parser.ts";
 import { TokenType } from "./types.ts";
 import {
@@ -41,7 +41,26 @@ function testLet() {
       console.error(
         `program doesn't contain 1 statement. len(prog)=${program.statements.length}`
       );
+      continue;
     }
+
+    if (!(program.statements[0] instanceof LetStatement)) {
+      console.error(
+        `Expected expression of type LetStatement, got ${typeof program
+          .statements[0]} instead.`
+      );
+      continue;
+    }
+
+    const stmt = program.statements[0] as LetStatement;
+    if (!testLiteral(stmt.name, test.expectedIdent)) {
+      continue;
+    }
+    if (stmt.val == undefined) {
+      console.error(`Expected a stmt.val, got undefined instead.`);
+      continue;
+    }
+    !testLiteral(stmt.val, test.expectedVal);
   }
 }
 
@@ -49,6 +68,7 @@ function testReturn() {
   const input = `return 5;
   return 10;
   return 993322;`;
+  const resultValues = [5, 10, 993322];
 
   const l = new lexer(input);
   const p = new Parser(l);
@@ -62,19 +82,24 @@ function testReturn() {
     console.error(`Expecting 3 statements, got ${prog.statements.length}`);
     return;
   }
-  for (const statement of prog.statements) {
+  prog.statements.forEach((statement, idx) => {
     if (!(statement instanceof ReturnStatement)) {
       console.error(
         `statement is not a ReturnStatement, got ${typeof statement} instead.`
       );
-      continue;
+      return;
     }
     if (statement.tokenLiteral() != "return") {
       console.error(
         `statement.tokenLiteral() != \"return\", got ${statement.tokenLiteral()} instead.`
       );
     }
-  }
+    if (statement.rval == undefined) {
+      console.error(`Expected a statement.val, got undefined instead.`);
+      return;
+    }
+    testLiteral(statement.rval, resultValues[idx]);
+  });
 }
 
 function testString() {

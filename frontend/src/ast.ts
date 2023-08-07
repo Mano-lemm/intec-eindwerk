@@ -104,6 +104,19 @@ export class Identifier implements Expression {
   public val = "";
 }
 
+export class StringLiteral implements Expression {
+  constructor(public token: token, public val: string) {}
+  expression(): void {
+    throw new Error("Method not implemented.");
+  }
+  tokenLiteral(): string {
+    return String(this.token.literal);
+  }
+  String(): string {
+    return `"${this.val}"`;
+  }
+}
+
 export class IntegerLiteral implements Expression {
   constructor(public token: token, public val: number) {}
   expression() {
