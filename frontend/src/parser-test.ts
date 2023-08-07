@@ -9,6 +9,7 @@ import {
   PrefixExpression,
   InfixExpression,
   IfExpression,
+  FunctionLiteral,
 } from "./ast.ts";
 import { lexer } from "./lexer.ts";
 import { Parser } from "./parser.ts";
@@ -474,6 +475,75 @@ function testParsingIfElseExpression() {
   }
 }
 
+function testFunctionLiteralParsing() {
+  const input = "fn(x, y) { x + y; }";
+  const l = new lexer(input);
+  const p = new Parser(l);
+  const prog = p.parseProgram();
+
+  if (checkParserErrors(p)) {
+    return;
+  }
+
+  if (prog.statements.length != 1) {
+    console.error(
+      `len(program.statements) != 1, got ${prog.statements.length} instead.`
+    );
+    return;
+  }
+
+  if (!(prog.statements[0] instanceof ExpressionStatement)) {
+    console.error(
+      `prog.statements[0] is not ExpressionStatement, got ${typeof prog
+        .statements[0]} instead.`
+    );
+    return;
+  }
+  const statement = prog.statements[0] ;
+
+  if (!(statement.expr instanceof FunctionLiteral)) {
+    console.error(
+      `prog.statements[0] is not ExpressionStatement, got ${typeof prog
+        .statements[0]} instead.`
+    );
+    return;
+  }
+  const func = statement.expr ;
+
+  if (func.parameters.length != 2) {
+    console.error(
+      `func.parameters.length != 2, got ${func.parameters.length} instead.`
+    );
+    return;
+  }
+  testLiteral(func.parameters[0], "x");
+  testLiteral(func.parameters[1], "y");
+
+  if (func.body.statements.length != 1) {
+    console.error(
+      `func.body.statements.length != 1, got ${func.body.statements.length} instead.`
+    );
+    return;
+  }
+
+  if (!(func.body.statements[0] instanceof ExpressionStatement)) {
+    console.error(
+      `func.body.statements[0] is not ExpressionStatement, got ${typeof func
+        .body.statements[0]} instead.`
+    );
+    return;
+  }
+
+  const bodyStmt = func.body.statements[0] ;
+  if (bodyStmt.expr == undefined) {
+    console.error(
+      `bodyStmt.expr is not Expression, got ${typeof bodyStmt.expr} instead.`
+    );
+    return;
+  }
+  testInfixExpression(bodyStmt.expr, "x", "+", "y");
+}
+
 letTest();
 returnTest();
 testString();
@@ -484,3 +554,4 @@ testParsingInfixExpressions();
 testOperatorPrecendenceParsing();
 testIfExpressions();
 testParsingIfElseExpression();
+testFunctionLiteralParsing();

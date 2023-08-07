@@ -190,3 +190,28 @@ export class IfExpression implements Expression {
     return str;
   }
 }
+
+export class FunctionLiteral implements Expression {
+  constructor(
+    public token: token,
+    public parameters: Identifier[],
+    public body: BlockStatement
+  ) {}
+  expression(): void {
+    throw new Error("Method not implemented.");
+  }
+  tokenLiteral(): string {
+    return String(this.token.literal);
+  }
+  String(): string {
+    const params: string[] = [];
+
+    this.parameters.forEach((e) => {
+      params.push(e.String());
+    });
+
+    return `${this.tokenLiteral()} (${params.join(
+      ", "
+    )}) ${this.body.String()}`;
+  }
+}

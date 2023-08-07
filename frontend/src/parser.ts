@@ -12,6 +12,7 @@ import {
   BooleanLiteral,
   IfExpression,
   BlockStatement,
+  FunctionLiteral,
 } from "./ast.ts";
 import { type lexer } from "./lexer.ts";
 import { precedences } from "./maps.ts";
@@ -28,6 +29,12 @@ export class Parser {
   public errors: string[] = [];
   private curToken: token;
   private peekToken: token;
+  /* 
+  these functions are required to be wrapped
+  this is because if not, they are instantiated before
+  "this" is defined and they hold on to "undefined"
+  as the value for "this" 
+  */
   private prefixParseFns: Map<TokenType, prefixParseFn> = new Map([
     [
       TokenType.Ident,
@@ -85,6 +92,12 @@ export class Parser {
       TokenType.If,
       () => {
         return this.parseIfExpression();
+      },
+    ],
+    [
+      TokenType.Function,
+      () => {
+        return this.parseFunctionLiteral();
       },
     ],
   ]);
@@ -304,6 +317,25 @@ export class Parser {
     return new IfExpression(cur, cond, consequence, undefined);
   }
 
+  private parseFunctionLiteral(): Expression {
+    const cur = this.curToken;
+    if (!this.expectPeek(TokenType.LeftRoundBrace)) {
+      this.errors.push(
+        `Expecting "(", got ${String(this.peekToken.literal)} instead`
+      );
+      return new Identifier();
+    }
+    const params: Identifier[] = this.parseFunctionParameters();
+    if (!this.expectPeek(TokenType.LeftSquirlyBrace)) {
+      this.errors.push(
+        `Expecting "{", got ${String(this.peekToken.literal)} instead`
+      );
+      return new Identifier();
+    }
+    const literal: BlockStatement = this.parseBlockStatement();
+    return new FunctionLiteral(cur, params, literal);
+  }
+
   private parseBlockStatement(): BlockStatement {
     const block = new BlockStatement(this.curToken, []);
     this.nextToken();
@@ -318,6 +350,37 @@ export class Parser {
       this.nextToken();
     }
     return block;
+  }
+
+  private parseFunctionParameters(): Identifier[] {
+    const idents: Identifier[] = [];
+
+    if (this.peekTokenIs(TokenType.RightRoundBrace)) {
+      this.nextToken();
+      return idents;
+    }
+    this.nextToken();
+    let ident = new Identifier();
+    ident.token = this.curToken;
+    ident.val = String(this.curToken.literal);
+    idents.push(ident);
+
+    while (this.peekTokenIs(TokenType.Comma)) {
+      this.nextToken(); // go to comma
+      this.nextToken(); // move to ident
+      ident = new Identifier();
+      ident.token = this.curToken;
+      ident.val = String(this.curToken.literal);
+      idents.push(ident);
+    }
+
+    if (!this.expectPeek(TokenType.RightRoundBrace)) {
+      this.errors.push(
+        `Expected ")", got ${String(this.curToken.literal)} instead`
+      );
+      return [];
+    }
+    return idents;
   }
 
   private parseGroupedExpression(): Expression {
