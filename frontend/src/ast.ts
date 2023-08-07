@@ -215,3 +215,22 @@ export class FunctionLiteral implements Expression {
     )}) ${this.body.String()}`;
   }
 }
+
+export class CallExpression implements Expression {
+  constructor(
+    public token: token,
+    public func: Expression,
+    public args: Expression[]
+  ) {}
+  expression(): void {
+    throw new Error("Method not implemented.");
+  }
+  tokenLiteral(): string {
+    return String(this.token.literal);
+  }
+  String(): string {
+    return `${this.func.String()}(${this.args
+      .map((e) => e.String())
+      .join(", ")})`;
+  }
+}

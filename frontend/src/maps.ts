@@ -9,6 +9,7 @@ export const precedences: Map<TokenType, operationOrder> = new Map([
   [TokenType.Minus, operationOrder.SUM],
   [TokenType.Slash, operationOrder.PRODUCT],
   [TokenType.Asterisk, operationOrder.PRODUCT],
+  [TokenType.LeftRoundBrace, operationOrder.CALL],
 ]);
 
 export const keywords: Record<string, TokenType> = {

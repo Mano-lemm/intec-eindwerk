@@ -13,6 +13,7 @@ import {
   IfExpression,
   BlockStatement,
   FunctionLiteral,
+  CallExpression,
 } from "./ast.ts";
 import { type lexer } from "./lexer.ts";
 import { precedences } from "./maps.ts";
@@ -148,6 +149,12 @@ export class Parser {
       TokenType.GreaterThan,
       (expr: Expression) => {
         return this.parseInfixExpression(expr);
+      },
+    ],
+    [
+      TokenType.LeftRoundBrace,
+      (expr: Expression) => {
+        return this.parseCallExpression(expr);
       },
     ],
   ]);
@@ -396,6 +403,37 @@ export class Parser {
     }
 
     return exp;
+  }
+
+  private parseCallExpression(expr: Expression): Expression {
+    return new CallExpression(this.curToken, expr, this.parseCallArguments());
+  }
+
+  private parseCallArguments(): Expression[] {
+    const args: Expression[] = [];
+    if (this.peekTokenIs(TokenType.RightRoundBrace)) {
+      this.nextToken();
+      return args;
+    }
+    this.nextToken();
+    const arg = this.parseExpression(operationOrder.LOWEST);
+    if (arg != undefined) {
+      args.push(arg);
+    }
+
+    while (this.peekTokenIs(TokenType.Comma)) {
+      this.nextToken();
+      this.nextToken();
+      const arg = this.parseExpression(operationOrder.LOWEST);
+      if (arg != undefined) {
+        args.push(arg);
+      }
+    }
+
+    if (!this.expectPeek(TokenType.RightRoundBrace)) {
+      return [];
+    }
+    return args;
   }
 
   private parseBoolean(): Expression {

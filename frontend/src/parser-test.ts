@@ -10,6 +10,7 @@ import {
   InfixExpression,
   IfExpression,
   FunctionLiteral,
+  CallExpression,
 } from "./ast.ts";
 import { lexer } from "./lexer.ts";
 import { Parser } from "./parser.ts";
@@ -20,7 +21,7 @@ import {
   testLiteral,
 } from "./test-helper.ts";
 
-function letTest() {
+function testLet() {
   const tests = [
     { input: "let x = 5;", expectedIdent: "x", expectedVal: 5 },
     { input: "let y = true;", expectedIdent: "y", expectedVal: true },
@@ -44,7 +45,7 @@ function letTest() {
   }
 }
 
-function returnTest() {
+function testReturn() {
   const input = `return 5;
   return 10;
   return 993322;`;
@@ -581,8 +582,54 @@ function testFunctionParameterParsing() {
   }
 }
 
-letTest();
-returnTest();
+function testCallExpressionParsing() {
+  const input = "add(1, 2 * 3, 4 + 5);";
+  const l = new lexer(input);
+  const p = new Parser(l);
+  const prog = p.parseProgram();
+  if (checkParserErrors(p)) {
+    return;
+  }
+
+  if (prog.statements.length != 1) {
+    console.error(
+      `prog.statements.len != 1, got ${prog.statements.length} instead.`
+    );
+    return;
+  }
+
+  if (!(prog.statements[0] instanceof ExpressionStatement)) {
+    console.error(
+      `Expected ExpressionStatement, got ${typeof prog.statements[0]} instead`
+    );
+    return;
+  }
+
+  if (!(prog.statements[0].expr instanceof CallExpression)) {
+    console.error(
+      `Expected CallExpression, got ${typeof prog.statements[0].expr} instead`
+    );
+    return;
+  }
+
+  const expr = prog.statements[0].expr;
+
+  if (!testLiteral(expr.func, "add")) {
+    return;
+  }
+
+  if (expr.args.length != 3) {
+    console.error(
+      `Expected expr.args.length == 3, got ${expr.args.length} instead.`
+    );
+  }
+  testLiteral(expr.args[0], 1);
+  testInfixExpression(expr.args[1], 2, "*", 3);
+  testInfixExpression(expr.args[2], 4, "+", 5);
+}
+
+testLet();
+testReturn();
 testString();
 testIdentifierExpr();
 testIntegerLiteralExpression();
@@ -593,3 +640,4 @@ testIfExpressions();
 testParsingIfElseExpression();
 testFunctionLiteralParsing();
 testFunctionParameterParsing();
+testCallExpressionParsing();
