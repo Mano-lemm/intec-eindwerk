@@ -14,8 +14,8 @@ import {
   type mk_Object,
 } from "./object.ts";
 
-const TRUE = new Boolean_OBJ(true)
-const FALSE = new Boolean_OBJ(false)
+const TRUE = new Boolean_OBJ(true);
+const FALSE = new Boolean_OBJ(false);
 
 export function evaluate(node: Node): mk_Object | undefined {
   if (node instanceof ExpressionStatement) {

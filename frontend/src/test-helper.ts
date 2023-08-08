@@ -133,15 +133,17 @@ export function testIntegerObject(obj: mk_Object, expected: number): boolean {
 }
 
 export function testBooleanObject(obj: mk_Object, expected: boolean): boolean {
-   if (!(obj instanceof Boolean_OBJ)) {
+  if (!(obj instanceof Boolean_OBJ)) {
     console.error(`Expecting Boolean_OBJ, got ${typeof obj} instead.`);
     return false;
   }
   if (obj.val != expected) {
     console.error(
-      `Object has wrong value. got ${obj.val} expected ${expected} instead.`
+      `Object has wrong value. got ${String(obj.val)} expected ${String(
+        expected
+      )} instead.`
     );
     return false;
   }
-  return true; 
+  return true;
 }
