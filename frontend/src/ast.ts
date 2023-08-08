@@ -13,10 +13,10 @@ export interface Expression extends Node {
   expression(): void;
 }
 
-export class Program {
+export class Program implements Node {
   public statements: Statement[] = [];
 
-  public toString(): string {
+  public String(): string {
     let r = "";
 
     for (const stmt of this.statements) {
@@ -24,6 +24,9 @@ export class Program {
     }
 
     return r;
+  }
+  tokenLiteral(): string {
+    throw new Error("Method not implemented.");
   }
 }
 

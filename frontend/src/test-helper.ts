@@ -5,7 +5,10 @@ import {
   InfixExpression,
   IntegerLiteral,
 } from "./ast.ts";
-import { type Parser } from "./parser.ts";
+import { evaluate } from "./evaluator.ts";
+import { lexer } from "./lexer.ts";
+import { Integer_OBJ, type mk_Object } from "./object.ts";
+import { Parser } from "./parser.ts";
 
 export function testLiteral(
   real: Expression,
@@ -105,4 +108,26 @@ export function checkParserErrors(p: Parser) {
     return true;
   }
   return false;
+}
+
+export function testEval(input: string) {
+  const l = new lexer(input);
+  const p = new Parser(l);
+  const prog = p.parseProgram();
+
+  return evaluate(prog);
+}
+
+export function testIntegerObject(obj: mk_Object, expected: number): boolean {
+  if (!(obj instanceof Integer_OBJ)) {
+    console.error(`Expecting Integer_OBJ, got ${typeof obj} instead.`);
+    return false;
+  }
+  if (obj.val != expected) {
+    console.error(
+      `Object has wrong value. got ${obj.val} expected ${expected} instead.`
+    );
+    return false;
+  }
+  return true;
 }

@@ -59,3 +59,10 @@ export enum operationOrder {
   PREFIX = 5,
   CALL = 6,
 }
+
+export enum ObjectType {
+  INTEGER = "INTEGER",
+  BOOLEAN = "BOOLEAN",
+  STRING = "STRING",
+  NULL = "NULL",
+}
