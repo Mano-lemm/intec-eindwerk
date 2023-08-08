@@ -14,6 +14,9 @@ import {
   type mk_Object,
 } from "./object.ts";
 
+const TRUE = new Boolean_OBJ(true)
+const FALSE = new Boolean_OBJ(false)
+
 export function evaluate(node: Node): mk_Object | undefined {
   if (node instanceof ExpressionStatement) {
     if (node.expr == undefined) {
@@ -23,7 +26,7 @@ export function evaluate(node: Node): mk_Object | undefined {
   } /* literal expressions */ else if (node instanceof IntegerLiteral) {
     return new Integer_OBJ(node.val);
   } else if (node instanceof BooleanLiteral) {
-    return new Boolean_OBJ(node.val);
+    return node.val ? TRUE : FALSE;
   } else if (node instanceof StringLiteral) {
     return new String_OBJ(node.val);
   } else if (node instanceof Program) {

@@ -7,7 +7,7 @@ import {
 } from "./ast.ts";
 import { evaluate } from "./evaluator.ts";
 import { lexer } from "./lexer.ts";
-import { Integer_OBJ, type mk_Object } from "./object.ts";
+import { Boolean_OBJ, Integer_OBJ, type mk_Object } from "./object.ts";
 import { Parser } from "./parser.ts";
 
 export function testLiteral(
@@ -130,4 +130,18 @@ export function testIntegerObject(obj: mk_Object, expected: number): boolean {
     return false;
   }
   return true;
+}
+
+export function testBooleanObject(obj: mk_Object, expected: boolean): boolean {
+   if (!(obj instanceof Boolean_OBJ)) {
+    console.error(`Expecting Boolean_OBJ, got ${typeof obj} instead.`);
+    return false;
+  }
+  if (obj.val != expected) {
+    console.error(
+      `Object has wrong value. got ${obj.val} expected ${expected} instead.`
+    );
+    return false;
+  }
+  return true; 
 }
