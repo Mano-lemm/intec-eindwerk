@@ -7,7 +7,7 @@ import {
 } from "./ast.ts";
 import { evaluate } from "./evaluator.ts";
 import { lexer } from "./lexer.ts";
-import { Boolean_OBJ, Integer_OBJ, type mk_Object } from "./object.ts";
+import { Boolean_OBJ, Integer_OBJ, NULL, type mk_Object } from "./object.ts";
 import { Parser } from "./parser.ts";
 
 export function testLiteral(
@@ -143,6 +143,14 @@ export function testBooleanObject(obj: mk_Object, expected: boolean): boolean {
         expected
       )} instead.`
     );
+    return false;
+  }
+  return true;
+}
+
+export function testNullObject(obj: mk_Object): boolean {
+  if (obj != NULL) {
+    console.error(`Expecting NULL obj, got ${JSON.stringify(obj)} instead.`);
     return false;
   }
   return true;

@@ -1,8 +1,9 @@
-import { type mk_Object } from "./object.ts";
+import { Integer_OBJ, Null_OBJ, type mk_Object } from "./object.ts";
 import {
   testBooleanObject,
   testEval,
   testIntegerObject,
+  testNullObject,
 } from "./test-helper.ts";
 
 function testEvalIntegerExpression() {
@@ -87,6 +88,37 @@ function testBangOperator() {
   }
 }
 
+function testIfElseExpressions() {
+  const tests: { input: string; expected: number | null }[] = [
+    { input: "if (true) { 10 }", expected: 10 },
+    { input: "if (false) { 10 }", expected: null },
+    { input: "if (1) { 10 }", expected: 10 },
+    { input: "if (1 < 2) { 10 }", expected: 10 },
+    { input: "if (1 > 2) { 10 }", expected: null },
+    { input: "if (1 > 2) { 10 } else { 20 }", expected: 20 },
+    { input: "if (1 < 2) { 10 } else { 20 }", expected: 10 },
+  ];
+
+  for (const test of tests) {
+    const result = testEval(test.input);
+    if (result == undefined) {
+      console.error(`Expecting result, got undefined instead.`);
+      continue;
+    } else if (result instanceof Null_OBJ) {
+      testNullObject(result);
+    } else if (result instanceof Integer_OBJ) {
+      if (test.expected == null) {
+        console.error(
+          `Expecting Integer result, got ${String(test.expected)} instead.`
+        );
+        continue;
+      }
+      testIntegerObject(result, test.expected);
+    }
+  }
+}
+
 testEvalIntegerExpression();
 testEvalBooleanExpression();
 testBangOperator();
+testIfElseExpressions();

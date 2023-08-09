@@ -43,3 +43,7 @@ export class Null_OBJ implements mk_Object {
     return "null";
   }
 }
+
+export const TRUE = new Boolean_OBJ(true);
+export const FALSE = new Boolean_OBJ(false);
+export const NULL = new Null_OBJ();

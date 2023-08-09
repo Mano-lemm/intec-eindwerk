@@ -8,19 +8,18 @@ import {
   StringLiteral,
   PrefixExpression,
   InfixExpression,
+  BlockStatement,
+  IfExpression,
 } from "./ast.ts";
 import {
-  Boolean_OBJ,
+  FALSE,
   Integer_OBJ,
-  Null_OBJ,
+  NULL,
   String_OBJ,
+  TRUE,
   type mk_Object,
 } from "./object.ts";
 import { ObjectType } from "./types.ts";
-
-const TRUE = new Boolean_OBJ(true);
-const FALSE = new Boolean_OBJ(false);
-const NULL = new Null_OBJ();
 
 export function evaluate(node: Node): mk_Object | undefined {
   if (node instanceof ExpressionStatement) {
@@ -58,6 +57,10 @@ export function evaluate(node: Node): mk_Object | undefined {
       return undefined;
     }
     return evalInfixExpression(node.oper, left, right);
+  } else if (node instanceof BlockStatement) {
+    return evalStatements(node.statements);
+  } else if (node instanceof IfExpression) {
+    return evalIfExpression(node);
   }
   return undefined;
 }
@@ -151,4 +154,28 @@ function evalIntegerInfixExpression(
     default:
       return NULL;
   }
+}
+
+function evalIfExpression(node: IfExpression): mk_Object | undefined {
+  const cond = evaluate(node.condition);
+  if (cond == undefined) {
+    return undefined;
+  }
+  if (isTruthy(cond)) {
+    return evaluate(node.consequence);
+  } else if (node.alternative != undefined) {
+    return evaluate(node.alternative);
+  }
+  return NULL;
+}
+
+function isTruthy(obj: mk_Object): boolean {
+  if (obj == NULL) {
+    return false;
+  } else if (obj == TRUE) {
+    return true;
+  } else if (obj == FALSE) {
+    return false;
+  }
+  return true;
 }
