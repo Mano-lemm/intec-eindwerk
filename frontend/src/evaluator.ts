@@ -111,10 +111,16 @@ function evalInfixExpression(
   right: mk_Object
 ): mk_Object {
   if (
-    right.Type() == ObjectType.INTEGER &&
+    left.Type() == ObjectType.INTEGER &&
     right.Type() == ObjectType.INTEGER
   ) {
     return evalIntegerInfixExpression(operator, left, right);
+  } else if(left.Type() == ObjectType.BOOLEAN && right.Type() == ObjectType.BOOLEAN){
+    if(operator === "=="){
+      return (left as Boolean_OBJ).val == (right as Boolean_OBJ).val ? TRUE : FALSE
+    } else if(operator !== "=="){
+      return (left as Boolean_OBJ).val != (right as Boolean_OBJ).val ? TRUE : FALSE
+    }
   }
   return NULL;
 }
