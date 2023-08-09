@@ -110,17 +110,16 @@ function evalInfixExpression(
   left: mk_Object,
   right: mk_Object
 ): mk_Object {
-  if (
-    left.Type() == ObjectType.INTEGER &&
-    right.Type() == ObjectType.INTEGER
-  ) {
+  if (left.Type() == ObjectType.INTEGER && right.Type() == ObjectType.INTEGER) {
     return evalIntegerInfixExpression(operator, left, right);
-  } else if(left.Type() == ObjectType.BOOLEAN && right.Type() == ObjectType.BOOLEAN){
-    if(operator === "=="){
-      return (left as Boolean_OBJ).val == (right as Boolean_OBJ).val ? TRUE : FALSE
-    } else if(operator !== "=="){
-      return (left as Boolean_OBJ).val != (right as Boolean_OBJ).val ? TRUE : FALSE
-    }
+  }
+  // should only be entered by booleans or null
+  // we can check for hard equality because we never allocate new booleans
+  // so the objects will be the same ones in memory
+  if (operator === "==") {
+    return left === right ? TRUE : FALSE;
+  } else if (operator !== "==") {
+    return left !== right ? TRUE : FALSE;
   }
   return NULL;
 }
