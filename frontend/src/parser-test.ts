@@ -560,9 +560,7 @@ function testFunctionLiteralParsing() {
 
   const bodyStmt = func.body.statements[0];
   if (bodyStmt.expr == undefined) {
-    console.error(
-      `bodyStmt.expr is not Expression, got undefined instead.`
-    );
+    console.error(`bodyStmt.expr is not Expression, got undefined instead.`);
     return;
   }
   testInfixExpression(bodyStmt.expr, "x", "+", "y");
