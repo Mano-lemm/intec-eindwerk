@@ -179,7 +179,6 @@ function testErrorHandling() {
   ];
 
   for (const test of tests) {
-    console.log(test.input);
     const result = testEval(test.input);
     if (result == undefined) {
       console.error(`Got undefined when expecting a monkey object`);

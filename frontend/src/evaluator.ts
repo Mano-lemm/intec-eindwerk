@@ -23,10 +23,10 @@ import {
 } from "./object.ts";
 import { ObjectType } from "./types.ts";
 
-export function evaluate(node: Node): mk_Object | undefined {
+export function evaluate(node: Node): mk_Object {
   if (node instanceof ExpressionStatement) {
     if (node.expr == undefined) {
-      return undefined;
+      return new error_OBJ("expression of ExpressionStatement is undefined");
     }
     return evaluate(node.expr);
   } /* literal expressions */ else if (node instanceof IntegerLiteral) {
@@ -39,25 +39,16 @@ export function evaluate(node: Node): mk_Object | undefined {
     return evalProgram(node);
   } else if (node instanceof PrefixExpression) {
     if (node.right == undefined) {
-      return undefined;
+      return new error_OBJ("right expression of PrefixExpression is undefined");
     }
     const right = evaluate(node.right);
-    if (right == undefined) {
-      return undefined;
-    }
     return evalPrefixExpression(node.operator, right);
   } else if (node instanceof InfixExpression) {
     const left = evaluate(node.left);
-    if (left == undefined) {
-      return undefined;
-    }
     if (node.right == undefined) {
-      return undefined;
+      return new error_OBJ("right expression of InfixExpression is undefined");
     }
     const right = evaluate(node.right);
-    if (right == undefined) {
-      return undefined;
-    }
     return evalInfixExpression(node.oper, left, right);
   } else if (node instanceof BlockStatement) {
     return evalBlockStatement(node);
@@ -73,11 +64,11 @@ export function evaluate(node: Node): mk_Object | undefined {
     }
     return new returnValue(val);
   }
-  return undefined;
+  return new error_OBJ(`unhandled ast node of type${node.constructor.name}`);
 }
 
-function evalProgram(prog: Program): mk_Object | undefined {
-  let result: mk_Object | undefined;
+function evalProgram(prog: Program): mk_Object {
+  let result: mk_Object = NULL;
   for (const statement of prog.statements) {
     result = evaluate(statement);
 
@@ -193,10 +184,10 @@ function evalIntegerInfixExpression(
   }
 }
 
-function evalIfExpression(node: IfExpression): mk_Object | undefined {
+function evalIfExpression(node: IfExpression): mk_Object {
   const cond = evaluate(node.condition);
   if (cond == undefined) {
-    return undefined;
+    return new error_OBJ("Expecting result, got undefined instead.");
   }
   if (isTruthy(cond)) {
     return evaluate(node.consequence);
@@ -215,4 +206,11 @@ function isTruthy(obj: mk_Object): boolean {
     return false;
   }
   return true;
+}
+
+function isError(obj: mk_Object | undefined) {
+  if (obj == undefined) {
+    return false;
+  }
+  return obj.Type() == ObjectType.ERROR;
 }
