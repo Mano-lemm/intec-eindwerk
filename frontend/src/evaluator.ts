@@ -19,6 +19,7 @@ import {
   TRUE,
   returnValue,
   type mk_Object,
+  error_OBJ,
 } from "./object.ts";
 import { ObjectType } from "./types.ts";
 
@@ -82,6 +83,8 @@ function evalProgram(prog: Program): mk_Object | undefined {
 
     if (result instanceof returnValue) {
       return result.value;
+    } else if (result instanceof error_OBJ) {
+      return result;
     }
   }
   return result;
@@ -93,7 +96,7 @@ function evalBlockStatement(block: BlockStatement): mk_Object {
   for (const stmt of block.statements) {
     const tmp = evaluate(stmt);
     result = tmp == undefined ? NULL : tmp;
-    if (result instanceof returnValue) {
+    if (result instanceof returnValue || result instanceof error_OBJ) {
       return result;
     }
   }
@@ -101,17 +104,14 @@ function evalBlockStatement(block: BlockStatement): mk_Object {
   return result;
 }
 
-function evalPrefixExpression(
-  oper: string,
-  right: mk_Object
-): mk_Object | undefined {
+function evalPrefixExpression(oper: string, right: mk_Object): mk_Object {
   switch (oper) {
     case "!":
       return evalBangOperatorExpression(right);
     case "-":
       return evalMinusPrefixOperatorExpression(right);
     default:
-      return undefined;
+      return new error_OBJ(`unknown operator: ${oper}${right.Type()}`);
   }
 }
 
@@ -130,7 +130,7 @@ function evalBangOperatorExpression(right: mk_Object): mk_Object {
 
 function evalMinusPrefixOperatorExpression(right: mk_Object): mk_Object {
   if (right.Type() != ObjectType.INTEGER) {
-    return NULL;
+    return new error_OBJ(`unknown operator: -${right.Type()}`);
   }
   const value = (right as Integer_OBJ).val;
   return new Integer_OBJ(-value);
@@ -141,6 +141,11 @@ function evalInfixExpression(
   left: mk_Object,
   right: mk_Object
 ): mk_Object {
+  if (left.Type() != right.Type()) {
+    return new error_OBJ(
+      `type mismatch: ${left.Type()} ${operator} ${right.Type()}`
+    );
+  }
   if (left.Type() == ObjectType.INTEGER && right.Type() == ObjectType.INTEGER) {
     return evalIntegerInfixExpression(operator, left, right);
   }
@@ -149,10 +154,12 @@ function evalInfixExpression(
   // so the objects will be the same ones in memory
   if (operator === "==") {
     return left === right ? TRUE : FALSE;
-  } else if (operator !== "==") {
+  } else if (operator === "!=") {
     return left !== right ? TRUE : FALSE;
   }
-  return NULL;
+  return new error_OBJ(
+    `unknown operator: ${left.Type()} ${operator} ${right.Type()}`
+  );
 }
 
 function evalIntegerInfixExpression(
@@ -180,7 +187,9 @@ function evalIntegerInfixExpression(
     case "!=":
       return leftVal != rightVal ? TRUE : FALSE;
     default:
-      return NULL;
+      return new error_OBJ(
+        `unknown operator: ${left.Type()} ${operator} ${right.Type()}`
+      );
   }
 }
 

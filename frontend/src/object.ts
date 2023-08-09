@@ -54,6 +54,16 @@ export class returnValue implements mk_Object {
   }
 }
 
+export class error_OBJ implements mk_Object {
+  constructor(public message: string) {}
+  Type(): ObjectType {
+    return ObjectType.ERROR;
+  }
+  Inspect(): string {
+    return `ERROR: ${this.message}`;
+  }
+}
+
 export const TRUE = new Boolean_OBJ(true);
 export const FALSE = new Boolean_OBJ(false);
 export const NULL = new Null_OBJ();

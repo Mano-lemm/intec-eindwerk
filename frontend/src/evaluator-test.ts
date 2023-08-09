@@ -1,4 +1,4 @@
-import { Integer_OBJ, Null_OBJ, type mk_Object } from "./object.ts";
+import { Integer_OBJ, Null_OBJ, error_OBJ, type mk_Object } from "./object.ts";
 import {
   testBooleanObject,
   testEval,
@@ -146,8 +146,63 @@ function testReturnStatements() {
   }
 }
 
+function testErrorHandling() {
+  const tests: { input: string; expectedMessage: string }[] = [
+    { input: "5 + true;", expectedMessage: "type mismatch: INTEGER + BOOLEAN" },
+    {
+      input: "5 + true; 5;",
+      expectedMessage: "type mismatch: INTEGER + BOOLEAN",
+    },
+    { input: "-true", expectedMessage: "unknown operator: -BOOLEAN" },
+    {
+      input: "true + false;",
+      expectedMessage: "unknown operator: BOOLEAN + BOOLEAN",
+    },
+    {
+      input: "5; true + false; 5",
+      expectedMessage: "unknown operator: BOOLEAN + BOOLEAN",
+    },
+    {
+      input: "if (10 > 1) { true + false; }",
+      expectedMessage: "unknown operator: BOOLEAN + BOOLEAN",
+    },
+    {
+      input: `
+      if (10 > 1) {
+        if (10 > 1) {
+          return true + false;
+        }
+        return 1;
+      }`,
+      expectedMessage: "unknown operator: BOOLEAN + BOOLEAN",
+    },
+  ];
+
+  for (const test of tests) {
+    console.log(test.input);
+    const result = testEval(test.input);
+    if (result == undefined) {
+      console.error(`Got undefined when expecting a monkey object`);
+      continue;
+    }
+
+    if (!(result instanceof error_OBJ)) {
+      console.error(
+        `Expected an error, got ${result.constructor.name} instead.`
+      );
+      continue;
+    }
+    if (result.message != test.expectedMessage) {
+      console.error(
+        `Wrong error message. expected:${test.expectedMessage}, got:${result.message}`
+      );
+    }
+  }
+}
+
 testEvalIntegerExpression();
 testEvalBooleanExpression();
 testBangOperator();
 testIfElseExpressions();
 testReturnStatements();
+testErrorHandling();
