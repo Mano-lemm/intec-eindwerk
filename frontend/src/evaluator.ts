@@ -136,13 +136,13 @@ function evalIntegerInfixExpression(
     case "/":
       return new Integer_OBJ(Math.floor(leftVal / rightVal));
     case "<":
-      return new Boolean_OBJ(leftVal < rightVal)
+      return leftVal < rightVal ? TRUE : FALSE;
     case ">":
-      return new Boolean_OBJ(leftVal > rightVal)
+      return leftVal > rightVal ? TRUE : FALSE;
     case "==":
-      return new Boolean_OBJ(leftVal == rightVal)
+      return leftVal == rightVal ? TRUE : FALSE;
     case "!=":
-      return new Boolean_OBJ(leftVal != rightVal)
+      return leftVal != rightVal ? TRUE : FALSE;
     default:
       return NULL;
   }
