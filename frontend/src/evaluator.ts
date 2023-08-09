@@ -7,6 +7,7 @@ import {
   type Statement,
   StringLiteral,
   PrefixExpression,
+  InfixExpression,
 } from "./ast.ts";
 import {
   Boolean_OBJ,
@@ -44,8 +45,20 @@ export function evaluate(node: Node): mk_Object | undefined {
       return undefined;
     }
     return evalPrefixExpression(node.operator, right);
+  } else if (node instanceof InfixExpression) {
+    const left = evaluate(node.left);
+    if (left == undefined) {
+      return undefined;
+    }
+    if (node.right == undefined) {
+      return undefined;
+    }
+    const right = evaluate(node.right);
+    if (right == undefined) {
+      return undefined;
+    }
+    return evalInfixExpression(node.oper, left, right);
   }
-  return undefined;
   return undefined;
 }
 
@@ -90,4 +103,39 @@ function evalMinusPrefixOperatorExpression(right: mk_Object): mk_Object {
   }
   const value = (right as Integer_OBJ).val;
   return new Integer_OBJ(-value);
+}
+
+function evalInfixExpression(
+  operator: string,
+  left: mk_Object,
+  right: mk_Object
+): mk_Object {
+  if (
+    right.Type() == ObjectType.INTEGER &&
+    right.Type() == ObjectType.INTEGER
+  ) {
+    return evalIntegerInfixExpression(operator, left, right);
+  }
+  return NULL;
+}
+
+function evalIntegerInfixExpression(
+  operator: string,
+  left: mk_Object,
+  right: mk_Object
+): mk_Object {
+  const rightVal = (right as Integer_OBJ).val;
+  const leftVal = (left as Integer_OBJ).val;
+  switch (operator) {
+    case "+":
+      return new Integer_OBJ(leftVal + rightVal);
+    case "-":
+      return new Integer_OBJ(leftVal - rightVal);
+    case "*":
+      return new Integer_OBJ(leftVal * rightVal);
+    case "/":
+      return new Integer_OBJ(Math.floor(leftVal / rightVal));
+    default:
+      return NULL;
+  }
 }
