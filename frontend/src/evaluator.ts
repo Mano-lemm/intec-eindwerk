@@ -4,12 +4,12 @@ import {
   IntegerLiteral,
   type Node,
   Program,
-  type Statement,
   StringLiteral,
   PrefixExpression,
   InfixExpression,
   BlockStatement,
   IfExpression,
+  ReturnStatement,
 } from "./ast.ts";
 import {
   FALSE,
@@ -17,6 +17,7 @@ import {
   NULL,
   String_OBJ,
   TRUE,
+  returnValue,
   type mk_Object,
 } from "./object.ts";
 import { ObjectType } from "./types.ts";
@@ -34,7 +35,7 @@ export function evaluate(node: Node): mk_Object | undefined {
   } else if (node instanceof StringLiteral) {
     return new String_OBJ(node.val);
   } else if (node instanceof Program) {
-    return evalStatements(node.statements);
+    return evalProgram(node);
   } else if (node instanceof PrefixExpression) {
     if (node.right == undefined) {
       return undefined;
@@ -58,18 +59,45 @@ export function evaluate(node: Node): mk_Object | undefined {
     }
     return evalInfixExpression(node.oper, left, right);
   } else if (node instanceof BlockStatement) {
-    return evalStatements(node.statements);
+    return evalBlockStatement(node);
   } else if (node instanceof IfExpression) {
     return evalIfExpression(node);
+  } else if (node instanceof ReturnStatement) {
+    if (node.rval == undefined) {
+      return NULL;
+    }
+    const val = evaluate(node.rval);
+    if (val == undefined) {
+      return NULL;
+    }
+    return new returnValue(val);
   }
   return undefined;
 }
 
-function evalStatements(stmts: Statement[]): mk_Object | undefined {
+function evalProgram(prog: Program): mk_Object | undefined {
   let result: mk_Object | undefined;
-  for (const statement of stmts) {
+  for (const statement of prog.statements) {
     result = evaluate(statement);
+
+    if (result instanceof returnValue) {
+      return result.value;
+    }
   }
+  return result;
+}
+
+function evalBlockStatement(block: BlockStatement): mk_Object {
+  let result: mk_Object = NULL;
+
+  for (const stmt of block.statements) {
+    const tmp = evaluate(stmt);
+    result = tmp == undefined ? NULL : tmp;
+    if (result instanceof returnValue) {
+      return result;
+    }
+  }
+
   return result;
 }
 

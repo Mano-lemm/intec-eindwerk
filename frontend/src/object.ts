@@ -44,6 +44,16 @@ export class Null_OBJ implements mk_Object {
   }
 }
 
+export class returnValue implements mk_Object {
+  constructor(public value: mk_Object) {}
+  Type(): ObjectType {
+    return ObjectType.RETURN_VALUE;
+  }
+  Inspect(): string {
+    return this.value.Inspect();
+  }
+}
+
 export const TRUE = new Boolean_OBJ(true);
 export const FALSE = new Boolean_OBJ(false);
 export const NULL = new Null_OBJ();

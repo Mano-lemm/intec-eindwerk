@@ -65,4 +65,5 @@ export enum ObjectType {
   BOOLEAN = "BOOLEAN",
   STRING = "STRING",
   NULL = "NULL",
+  RETURN_VALUE = "RETURN_VALUE",
 }
