@@ -15,6 +15,7 @@ import {
   String_OBJ,
   type mk_Object,
 } from "./object.ts";
+import { ObjectType } from "./types.ts";
 
 const TRUE = new Boolean_OBJ(true);
 const FALSE = new Boolean_OBJ(false);
@@ -63,6 +64,8 @@ function evalPrefixExpression(
   switch (oper) {
     case "!":
       return evalBangOperatorExpression(right);
+    case "-":
+      return evalMinusPrefixOperatorExpression(right);
     default:
       return undefined;
   }
@@ -79,4 +82,12 @@ function evalBangOperatorExpression(right: mk_Object): mk_Object {
     default:
       return FALSE;
   }
+}
+
+function evalMinusPrefixOperatorExpression(right: mk_Object): mk_Object {
+  if (right.Type() != ObjectType.INTEGER) {
+    return NULL;
+  }
+  const value = (right as Integer_OBJ).val;
+  return new Integer_OBJ(-value);
 }

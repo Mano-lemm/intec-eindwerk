@@ -9,6 +9,8 @@ function testEvalIntegerExpression() {
   const tests: { input: string; expected: number }[] = [
     { input: "5", expected: 5 },
     { input: "10", expected: 10 },
+    { input: "-5", expected: -5 },
+    { input: "-10", expected: -10 },
   ];
 
   for (const test of tests) {
