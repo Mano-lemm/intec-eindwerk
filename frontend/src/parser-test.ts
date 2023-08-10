@@ -11,6 +11,7 @@ import {
   IfExpression,
   FunctionLiteral,
   CallExpression,
+StringLiteral,
 } from "./ast.ts";
 import { lexer } from "./lexer.ts";
 import { Parser } from "./parser.ts";
@@ -115,10 +116,10 @@ function testString() {
   letStmt.val = ident;
   prog.statements = [letStmt];
 
-  if (prog.toString() != "let myVar = anotherVar;") {
-    console.error(`prog.toString() wrong:
-    expected: \"let myVar = antherVar;\"
-    got     : \"${prog.toString()}\"`);
+  if (prog.String() != "let myVar = anotherVar;") {
+    console.error(`prog.String() wrong:
+    expected: \"let myVar = anotherVar;\"
+    got     : \"${prog.String()}\"`);
   }
 }
 
@@ -380,10 +381,10 @@ function testOperatorPrecendenceParsing() {
 
     checkParserErrors(p);
 
-    if (prog.toString() != test.expected) {
+    if (prog.String() != test.expected) {
       console.error(`${test.input} did not parse correctly`);
       console.error(`\texpected:${test.expected}`);
-      console.error(`\treal    :${prog.toString()}`);
+      console.error(`\treal    :${prog.String()}`);
     }
   });
 }
@@ -648,6 +649,27 @@ function testCallExpressionParsing() {
   testInfixExpression(expr.args[2], 4, "+", 5);
 }
 
+function testStringLiteralExpression() {
+  const input = `"hello world";`
+  const l = new lexer(input)
+  const p = new Parser(l)
+  const prog = p.parseProgram()
+  checkParserErrors(p)
+  
+  const exp = (prog.statements[0] as ExpressionStatement).expr
+  if(exp == undefined){
+    return
+  }
+  if(!(exp instanceof StringLiteral)){
+    console.error(`exp not Stringliteral. got=${exp?.constructor.name}`)
+    return
+  }
+
+  if(exp.val != "hello world"){
+    console.error(`literal.val not "${input}". got=${exp.val}`)
+  }
+}
+
 testLet();
 testReturn();
 testString();
@@ -661,3 +683,4 @@ testParsingIfElseExpression();
 testFunctionLiteralParsing();
 testFunctionParameterParsing();
 testCallExpressionParsing();
+testStringLiteralExpression();
