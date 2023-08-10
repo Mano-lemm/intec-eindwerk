@@ -85,14 +85,12 @@ export class Function implements mk_Object {
 
 export class Environment {
   constructor(public store: Map<string, mk_Object>, public outer: Environment | undefined) {}
-
   get(name: string): mk_Object | undefined {
     if(this.store.has(name)){
       return this.store.get(name);
     }
     return this.outer?.get(name)
   }
-
   set(name: string, val: mk_Object): mk_Object {
     this.store.set(name, val);
     return val;

@@ -3,6 +3,7 @@ import {
   Function,
   Integer_OBJ,
   Null_OBJ,
+  String_OBJ,
   error_OBJ,
   type mk_Object,
 } from "./object.ts";
@@ -276,6 +277,21 @@ function testClosures() {
   testIntegerObject(testEval(input), 4)
 }
 
+function testStringLiteral() {
+  const input = `"Hello World!"`
+  const evaluated = testEval(input)
+  if(!(evaluated instanceof String_OBJ)){
+    console.error(`object is not String. got=${evaluated.Type()}`)
+    if(evaluated instanceof error_OBJ){
+      console.error(`\t${evaluated.message}`)
+    }
+    return
+  }
+  if(evaluated.val != "Hello World!"){
+    console.error(`String has wrong value. got=${evaluated.val}`)
+  }
+}
+
 testEvalIntegerExpression();
 testEvalBooleanExpression();
 testBangOperator();
@@ -285,3 +301,4 @@ testErrorHandling();
 testFunctionObject();
 testFunctionApplication();
 testClosures();
+testStringLiteral();

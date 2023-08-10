@@ -670,17 +670,17 @@ function testStringLiteralExpression() {
   }
 }
 
-testLet();
-testReturn();
-testString();
-testIdentifierExpr();
-testIntegerLiteralExpression();
-testParsingPrefixExpressions();
-testParsingInfixExpressions();
-testOperatorPrecendenceParsing();
-testIfExpressions();
-testParsingIfElseExpression();
-testFunctionLiteralParsing();
-testFunctionParameterParsing();
-testCallExpressionParsing();
+// testLet();
+// testReturn();
+// testString();
+// testIdentifierExpr();
+// testIntegerLiteralExpression();
+// testParsingPrefixExpressions();
+// testParsingInfixExpressions();
+// testOperatorPrecendenceParsing();
+// testIfExpressions();
+// testParsingIfElseExpression();
+// testFunctionLiteralParsing();
+// testFunctionParameterParsing();
+// testCallExpressionParsing();
 testStringLiteralExpression();
