@@ -1,4 +1,11 @@
-import { Integer_OBJ, Null_OBJ, error_OBJ, type mk_Object } from "./object.ts";
+import { evaluate } from "./evaluator.ts";
+import {
+  Function,
+  Integer_OBJ,
+  Null_OBJ,
+  error_OBJ,
+  type mk_Object,
+} from "./object.ts";
 import {
   testBooleanObject,
   testEval,
@@ -201,16 +208,72 @@ function testErrorHandling() {
 }
 
 function testLetStatements() {
-  const tests: {input: string, expected: number}[] = [
+  const tests: { input: string; expected: number }[] = [
     { input: "let a = 5; a;", expected: 5 },
     { input: "let a = 5 * 5; a;", expected: 25 },
     { input: "let a = 5; let b = a; b;", expected: 5 },
     { input: "let a = 5; let b = a; let c = a + b + 5; c;", expected: 15 },
-  ]
-  
+  ];
+
   for (const test of tests) {
-    testIntegerObject(testEval(test.input), test.expected)
+    testIntegerObject(testEval(test.input), test.expected);
   }
+}
+
+function testFunctionObject() {
+  const input = "fn(x) { x + 2; };";
+
+  const result = testEval(input);
+  if (!(result instanceof Function)) {
+    console.error(`object is not Function, got=${result.constructor.name}`);
+    return;
+  }
+
+  if (result.params.length != 1) {
+    console.error(
+      `function has wrong parameters. Parameters=${JSON.stringify(
+        result.params
+      )}`
+    );
+    return;
+  }
+
+  if (result.params[0].String() != "x") {
+    console.error(`parameter is not "x". got=${result.params[0].String()}`);
+    return;
+  }
+  const expectedBody = "(x + 2)";
+  if (result.body.String() != expectedBody) {
+    console.error(`body is not ${expectedBody}. got=${result.body.String()}`);
+  }
+}
+
+function testFunctionApplication() {
+  const tests: { input: string; expected: number }[] = [
+    { input: "let identity = fn(x) { x; }; identity(5);", expected: 5 },
+    { input: "let identity = fn(x) { return x; }; identity(5);", expected: 5 },
+    { input: "let double = fn(x) { x * 2; }; double(5);", expected: 10 },
+    { input: "let add = fn(x, y) { x + y; }; add(5, 5);", expected: 10 },
+    {
+      input: "let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));",
+      expected: 20,
+    },
+    { input: "fn(x) { x; }(5)", expected: 5 },
+  ];
+
+  for (const test of tests) {
+    testIntegerObject(testEval(test.input), test.expected);
+  }
+}
+
+function testClosures() {
+  const input = `
+  let newAdder = fn(x) {
+  fn(y) { x + y };
+  };
+  let addTwo = newAdder(2);
+  addTwo(2);`
+  testIntegerObject(testEval(input), 4)
 }
 
 testEvalIntegerExpression();
@@ -219,3 +282,6 @@ testBangOperator();
 testIfElseExpressions();
 testReturnStatements();
 testErrorHandling();
+testFunctionObject();
+testFunctionApplication();
+testClosures();

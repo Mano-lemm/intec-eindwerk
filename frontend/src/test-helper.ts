@@ -7,7 +7,14 @@ import {
 } from "./ast.ts";
 import { evaluate } from "./evaluator.ts";
 import { lexer } from "./lexer.ts";
-import { Boolean_OBJ, Environment, Integer_OBJ, NULL, type mk_Object } from "./object.ts";
+import {
+  Boolean_OBJ,
+  Environment,
+  Integer_OBJ,
+  NULL,
+  error_OBJ,
+  type mk_Object,
+} from "./object.ts";
 import { Parser } from "./parser.ts";
 
 export function testLiteral(
@@ -115,12 +122,17 @@ export function testEval(input: string) {
   const p = new Parser(l);
   const prog = p.parseProgram();
 
-  return evaluate(prog, new Environment(new Map<string, mk_Object>()));
+  return evaluate(prog, new Environment(new Map<string, mk_Object>(), undefined));
 }
 
 export function testIntegerObject(obj: mk_Object, expected: number): boolean {
   if (!(obj instanceof Integer_OBJ)) {
-    console.error(`Expecting Integer_OBJ, got ${typeof obj} instead.`);
+    console.error(
+      `Expecting Integer_OBJ, got ${obj.constructor.name} instead.`
+    );
+    if(obj instanceof error_OBJ){
+      console.error(`\t${obj.message}`)
+    }
     return false;
   }
   if (obj.val != expected) {
@@ -134,7 +146,9 @@ export function testIntegerObject(obj: mk_Object, expected: number): boolean {
 
 export function testBooleanObject(obj: mk_Object, expected: boolean): boolean {
   if (!(obj instanceof Boolean_OBJ)) {
-    console.error(`Expecting Boolean_OBJ, got ${typeof obj} instead.`);
+    console.error(
+      `Expecting Boolean_OBJ, got ${obj.constructor.name} instead.`
+    );
     return false;
   }
   if (obj.val != expected) {
@@ -150,7 +164,7 @@ export function testBooleanObject(obj: mk_Object, expected: boolean): boolean {
 
 export function testNullObject(obj: mk_Object): boolean {
   if (obj != NULL) {
-    console.error(`Expecting NULL obj, got ${JSON.stringify(obj)} instead.`);
+    console.error(`Expecting NULL obj, got ${obj.constructor.name} instead.`);
     return false;
   }
   return true;

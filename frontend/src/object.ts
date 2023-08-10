@@ -1,3 +1,4 @@
+import { BlockStatement, Identifier } from "./ast.ts";
 import { ObjectType } from "./types.ts";
 
 export interface mk_Object {
@@ -64,16 +65,37 @@ export class error_OBJ implements mk_Object {
   }
 }
 
+export class Function implements mk_Object {
+  constructor(
+    public params: Identifier[],
+    public body: BlockStatement,
+    public env: Environment
+  ) {}
+  Type(): ObjectType {
+    return ObjectType.FUNCTION;
+  }
+  Inspect(): string {
+    return `fn(${this.params
+      .map((e) => {
+        e.String();
+      })
+      .join(", ")}) {\n${this.body.String()}\n}`;
+  }
+}
+
 export class Environment {
-  constructor(private store: Map<string, mk_Object>) {}
+  constructor(public store: Map<string, mk_Object>, public outer: Environment | undefined) {}
 
   get(name: string): mk_Object | undefined {
-    return this.store.get(name)
+    if(this.store.has(name)){
+      return this.store.get(name);
+    }
+    return this.outer?.get(name)
   }
 
   set(name: string, val: mk_Object): mk_Object {
-    this.store.set(name, val)
-    return val
+    this.store.set(name, val);
+    return val;
   }
 }
 

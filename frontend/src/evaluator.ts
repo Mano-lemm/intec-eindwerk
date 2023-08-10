@@ -10,8 +10,11 @@ import {
   BlockStatement,
   IfExpression,
   ReturnStatement,
-LetStatement,
-Identifier,
+  LetStatement,
+  Identifier,
+  FunctionLiteral,
+  CallExpression,
+  Expression,
 } from "./ast.ts";
 import {
   FALSE,
@@ -22,10 +25,13 @@ import {
   returnValue,
   type mk_Object,
   error_OBJ,
-Environment,
+  Environment,
+  Function,
 } from "./object.ts";
 import { ObjectType } from "./types.ts";
 
+// being able to switch on the type would be very nice here but
+// as far as i know it isnt possible in typescript
 export function evaluate(node: Node, env: Environment): mk_Object {
   if (node instanceof ExpressionStatement) {
     if (node.expr == undefined) {
@@ -67,17 +73,35 @@ export function evaluate(node: Node, env: Environment): mk_Object {
     }
     return new returnValue(val);
   } else if (node instanceof LetStatement) {
-    if(node.val == undefined){
-      return new error_OBJ(`let statement with undefined value`)
+    if (node.val == undefined) {
+      return new error_OBJ(`let statement with undefined value`);
     }
-    const val = evaluate(node.val, env)
-    if(isError(val)){
-      return val
+    const val = evaluate(node.val, env);
+    if (isError(val)) {
+      return val;
     }
-    env.set(node.name.val, val)
+    env.set(node.name.val, val);
+    return val
   } else if (node instanceof Identifier) {
-    return evalIdentifier(node, env)
-  }
+    return evalIdentifier(node, env);
+  } else if (node instanceof FunctionLiteral) {
+    const params = node.parameters;
+    const body = node.body;
+    return new Function(params, body, env);
+  } else if (node instanceof CallExpression) {
+    const func = evaluate(node.func, env)
+    if(isError(func)){
+      return func
+    }
+    const args = evalExpressions(node.args, env)
+    if(args[0] != undefined && isError(args[0])){
+      return args[0]
+    }
+    if(!(func instanceof Function)){
+      return new error_OBJ(`not a function: ${func.Type()}`)
+    }
+    return applyFunction(func, args)
+  } 
   return new error_OBJ(`unhandled ast node of type${node.constructor.name}`);
 }
 
@@ -95,7 +119,10 @@ function evalProgram(prog: Program, env: Environment): mk_Object {
   return result;
 }
 
-function evalBlockStatement(block: BlockStatement, env: Environment): mk_Object {
+function evalBlockStatement(
+  block: BlockStatement,
+  env: Environment
+): mk_Object {
   let result: mk_Object = NULL;
 
   for (const stmt of block.statements) {
@@ -212,11 +239,44 @@ function evalIfExpression(node: IfExpression, env: Environment): mk_Object {
 }
 
 function evalIdentifier(node: Identifier, env: Environment): mk_Object {
-  const val = env.get(node.val)
-  if(val == undefined){
-    return new error_OBJ(`identifier not found: ${node.val}`)
+  const val = env.get(node.val);
+  if (val == undefined) {
+    return new error_OBJ(`identifier not found: ${node.val}`);
   }
-  return val
+  return val;
+}
+
+function evalExpressions(exps: Expression[], env: Environment): mk_Object[] {
+  const result: mk_Object[] = []
+  for (const expr of exps) {
+    const evaluated = evaluate(expr, env)
+    if(isError(evaluated)){
+      return [evaluated]
+    }
+    result.push(evaluated)
+  }
+  return result
+}
+
+function applyFunction(func: Function, args: mk_Object[]): mk_Object {
+  const extEnv = extendFunctionEnv(func, args)
+  const evaluated = evaluate(func.body, extEnv)
+  return unwrapReturnValue(evaluated)
+}
+
+function extendFunctionEnv(func: Function, args: mk_Object[]) {
+  const fenv = new Environment(new Map<string, mk_Object>() ,func.env)
+  for (const [idx, obj] of func.params.entries()) {
+    fenv.set(obj.val, args[idx])
+  }
+  return fenv
+}
+
+function unwrapReturnValue(obj: mk_Object): mk_Object {
+  if(obj instanceof returnValue){
+    return obj.value
+  }
+  return obj
 }
 
 function isTruthy(obj: mk_Object): boolean {
