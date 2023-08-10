@@ -10,6 +10,8 @@ import {
   BlockStatement,
   IfExpression,
   ReturnStatement,
+LetStatement,
+Identifier,
 } from "./ast.ts";
 import {
   FALSE,
@@ -20,15 +22,16 @@ import {
   returnValue,
   type mk_Object,
   error_OBJ,
+Environment,
 } from "./object.ts";
 import { ObjectType } from "./types.ts";
 
-export function evaluate(node: Node): mk_Object {
+export function evaluate(node: Node, env: Environment): mk_Object {
   if (node instanceof ExpressionStatement) {
     if (node.expr == undefined) {
       return new error_OBJ("expression of ExpressionStatement is undefined");
     }
-    return evaluate(node.expr);
+    return evaluate(node.expr, env);
   } /* literal expressions */ else if (node instanceof IntegerLiteral) {
     return new Integer_OBJ(node.val);
   } else if (node instanceof BooleanLiteral) {
@@ -36,41 +39,52 @@ export function evaluate(node: Node): mk_Object {
   } else if (node instanceof StringLiteral) {
     return new String_OBJ(node.val);
   } else if (node instanceof Program) {
-    return evalProgram(node);
+    return evalProgram(node, env);
   } else if (node instanceof PrefixExpression) {
     if (node.right == undefined) {
       return new error_OBJ("right expression of PrefixExpression is undefined");
     }
-    const right = evaluate(node.right);
+    const right = evaluate(node.right, env);
     return evalPrefixExpression(node.operator, right);
   } else if (node instanceof InfixExpression) {
-    const left = evaluate(node.left);
+    const left = evaluate(node.left, env);
     if (node.right == undefined) {
       return new error_OBJ("right expression of InfixExpression is undefined");
     }
-    const right = evaluate(node.right);
+    const right = evaluate(node.right, env);
     return evalInfixExpression(node.oper, left, right);
   } else if (node instanceof BlockStatement) {
-    return evalBlockStatement(node);
+    return evalBlockStatement(node, env);
   } else if (node instanceof IfExpression) {
-    return evalIfExpression(node);
+    return evalIfExpression(node, env);
   } else if (node instanceof ReturnStatement) {
     if (node.rval == undefined) {
       return NULL;
     }
-    const val = evaluate(node.rval);
+    const val = evaluate(node.rval, env);
     if (val == undefined) {
       return NULL;
     }
     return new returnValue(val);
+  } else if (node instanceof LetStatement) {
+    if(node.val == undefined){
+      return new error_OBJ(`let statement with undefined value`)
+    }
+    const val = evaluate(node.val, env)
+    if(isError(val)){
+      return val
+    }
+    env.set(node.name.val, val)
+  } else if (node instanceof Identifier) {
+    return evalIdentifier(node, env)
   }
   return new error_OBJ(`unhandled ast node of type${node.constructor.name}`);
 }
 
-function evalProgram(prog: Program): mk_Object {
+function evalProgram(prog: Program, env: Environment): mk_Object {
   let result: mk_Object = NULL;
   for (const statement of prog.statements) {
-    result = evaluate(statement);
+    result = evaluate(statement, env);
 
     if (result instanceof returnValue) {
       return result.value;
@@ -81,11 +95,11 @@ function evalProgram(prog: Program): mk_Object {
   return result;
 }
 
-function evalBlockStatement(block: BlockStatement): mk_Object {
+function evalBlockStatement(block: BlockStatement, env: Environment): mk_Object {
   let result: mk_Object = NULL;
 
   for (const stmt of block.statements) {
-    const tmp = evaluate(stmt);
+    const tmp = evaluate(stmt, env);
     result = tmp == undefined ? NULL : tmp;
     if (result instanceof returnValue || result instanceof error_OBJ) {
       return result;
@@ -184,17 +198,25 @@ function evalIntegerInfixExpression(
   }
 }
 
-function evalIfExpression(node: IfExpression): mk_Object {
-  const cond = evaluate(node.condition);
+function evalIfExpression(node: IfExpression, env: Environment): mk_Object {
+  const cond = evaluate(node.condition, env);
   if (cond == undefined) {
     return new error_OBJ("Expecting result, got undefined instead.");
   }
   if (isTruthy(cond)) {
-    return evaluate(node.consequence);
+    return evaluate(node.consequence, env);
   } else if (node.alternative != undefined) {
-    return evaluate(node.alternative);
+    return evaluate(node.alternative, env);
   }
   return NULL;
+}
+
+function evalIdentifier(node: Identifier, env: Environment): mk_Object {
+  const val = env.get(node.val)
+  if(val == undefined){
+    return new error_OBJ(`identifier not found: ${node.val}`)
+  }
+  return val
 }
 
 function isTruthy(obj: mk_Object): boolean {

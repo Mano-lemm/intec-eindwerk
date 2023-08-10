@@ -64,6 +64,19 @@ export class error_OBJ implements mk_Object {
   }
 }
 
+export class Environment {
+  constructor(private store: Map<string, mk_Object>) {}
+
+  get(name: string): mk_Object | undefined {
+    return this.store.get(name)
+  }
+
+  set(name: string, val: mk_Object): mk_Object {
+    this.store.set(name, val)
+    return val
+  }
+}
+
 export const TRUE = new Boolean_OBJ(true);
 export const FALSE = new Boolean_OBJ(false);
 export const NULL = new Null_OBJ();

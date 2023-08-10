@@ -176,6 +176,7 @@ function testErrorHandling() {
       }`,
       expectedMessage: "unknown operator: BOOLEAN + BOOLEAN",
     },
+    { input: "foobar", expectedMessage: "identifier not found: foobar" },
   ];
 
   for (const test of tests) {
@@ -196,6 +197,19 @@ function testErrorHandling() {
         `Wrong error message. expected:${test.expectedMessage}, got:${result.message}`
       );
     }
+  }
+}
+
+function testLetStatements() {
+  const tests: {input: string, expected: number}[] = [
+    { input: "let a = 5; a;", expected: 5 },
+    { input: "let a = 5 * 5; a;", expected: 25 },
+    { input: "let a = 5; let b = a; b;", expected: 5 },
+    { input: "let a = 5; let b = a; let c = a + b + 5; c;", expected: 15 },
+  ]
+  
+  for (const test of tests) {
+    testIntegerObject(testEval(test.input), test.expected)
   }
 }
 

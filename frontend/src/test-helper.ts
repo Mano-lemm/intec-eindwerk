@@ -7,7 +7,7 @@ import {
 } from "./ast.ts";
 import { evaluate } from "./evaluator.ts";
 import { lexer } from "./lexer.ts";
-import { Boolean_OBJ, Integer_OBJ, NULL, type mk_Object } from "./object.ts";
+import { Boolean_OBJ, Environment, Integer_OBJ, NULL, type mk_Object } from "./object.ts";
 import { Parser } from "./parser.ts";
 
 export function testLiteral(
@@ -115,7 +115,7 @@ export function testEval(input: string) {
   const p = new Parser(l);
   const prog = p.parseProgram();
 
-  return evaluate(prog);
+  return evaluate(prog, new Environment(new Map<string, mk_Object>()));
 }
 
 export function testIntegerObject(obj: mk_Object, expected: number): boolean {
