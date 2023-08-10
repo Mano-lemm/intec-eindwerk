@@ -122,7 +122,10 @@ export function testEval(input: string) {
   const p = new Parser(l);
   const prog = p.parseProgram();
 
-  return evaluate(prog, new Environment(new Map<string, mk_Object>(), undefined));
+  return evaluate(
+    prog,
+    new Environment(new Map<string, mk_Object>(), undefined)
+  );
 }
 
 export function testIntegerObject(obj: mk_Object, expected: number): boolean {
@@ -130,8 +133,8 @@ export function testIntegerObject(obj: mk_Object, expected: number): boolean {
     console.error(
       `Expecting Integer_OBJ, got ${obj.constructor.name} instead.`
     );
-    if(obj instanceof error_OBJ){
-      console.error(`\t${obj.message}`)
+    if (obj instanceof error_OBJ) {
+      console.error(`\t${obj.message}`);
     }
     return false;
   }

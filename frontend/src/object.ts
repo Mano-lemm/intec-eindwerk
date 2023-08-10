@@ -65,7 +65,7 @@ export class error_OBJ implements mk_Object {
   }
 }
 
-export class Function implements mk_Object {
+export class mk_Function implements mk_Object {
   constructor(
     public params: Identifier[],
     public body: BlockStatement,
@@ -84,12 +84,15 @@ export class Function implements mk_Object {
 }
 
 export class Environment {
-  constructor(public store: Map<string, mk_Object>, public outer: Environment | undefined) {}
+  constructor(
+    public store: Map<string, mk_Object>,
+    public outer: Environment | undefined
+  ) {}
   get(name: string): mk_Object | undefined {
-    if(this.store.has(name)){
+    if (this.store.has(name)) {
       return this.store.get(name);
     }
-    return this.outer?.get(name)
+    return this.outer?.get(name);
   }
   set(name: string, val: mk_Object): mk_Object {
     this.store.set(name, val);
@@ -97,6 +100,34 @@ export class Environment {
   }
 }
 
+export class Builtin implements mk_Object {
+  constructor(public fn: (obj: mk_Object[]) => mk_Object) {}
+  Type(): ObjectType {
+    return ObjectType.BUILTIN;
+  }
+  Inspect(): string {
+    return "builtin function";
+  }
+}
+
 export const TRUE = new Boolean_OBJ(true);
 export const FALSE = new Boolean_OBJ(false);
 export const NULL = new Null_OBJ();
+export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
+  [
+    "len",
+    new Builtin((str: mk_Object[]) => {
+      if (str.length != 1) {
+        return new error_OBJ(
+          `wrong number of arguments. got=${str.length}, want=1`
+        );
+      }
+      if (!(str[0] instanceof String_OBJ)) {
+        return new error_OBJ(
+          `argument to \`len\` not supported, got ${str[0].Type()}`
+        );
+      }
+      return new Integer_OBJ(str[0].val.length);
+    }),
+  ],
+]);

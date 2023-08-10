@@ -68,4 +68,5 @@ export enum ObjectType {
   RETURN_VALUE = "RETURN_VALUE",
   ERROR = "ERROR",
   FUNCTION = "FUNCTION",
+  BUILTIN = "BUILTIN",
 }

@@ -1,6 +1,6 @@
 import { evaluate } from "./evaluator.ts";
 import {
-  Function,
+  mk_Function,
   Integer_OBJ,
   Null_OBJ,
   String_OBJ,
@@ -185,7 +185,10 @@ function testErrorHandling() {
       expectedMessage: "unknown operator: BOOLEAN + BOOLEAN",
     },
     { input: "foobar", expectedMessage: "identifier not found: foobar" },
-    { input: `"Hello" - "World"`, expectedMessage: "unknown operator: STRING - STRING"},
+    {
+      input: `"Hello" - "World"`,
+      expectedMessage: "unknown operator: STRING - STRING",
+    },
   ];
 
   for (const test of tests) {
@@ -226,7 +229,7 @@ function testFunctionObject() {
   const input = "fn(x) { x + 2; };";
 
   const result = testEval(input);
-  if (!(result instanceof Function)) {
+  if (!(result instanceof mk_Function)) {
     console.error(`object is not Function, got=${result.constructor.name}`);
     return;
   }
@@ -274,37 +277,70 @@ function testClosures() {
   fn(y) { x + y };
   };
   let addTwo = newAdder(2);
-  addTwo(2);`
-  testIntegerObject(testEval(input), 4)
+  addTwo(2);`;
+  testIntegerObject(testEval(input), 4);
 }
 
 function testStringLiteral() {
-  const input = `"Hello World!"`
-  const evaluated = testEval(input)
-  if(!(evaluated instanceof String_OBJ)){
-    console.error(`object is not String. got=${evaluated.Type()}`)
-    if(evaluated instanceof error_OBJ){
-      console.error(`\t${evaluated.message}`)
+  const input = `"Hello World!"`;
+  const evaluated = testEval(input);
+  if (!(evaluated instanceof String_OBJ)) {
+    console.error(`object is not String. got=${evaluated.Type()}`);
+    if (evaluated instanceof error_OBJ) {
+      console.error(`\t${evaluated.message}`);
     }
-    return
+    return;
   }
-  if(evaluated.val != "Hello World!"){
-    console.error(`String has wrong value. got=${evaluated.val}`)
+  if (evaluated.val != "Hello World!") {
+    console.error(`String has wrong value. got=${evaluated.val}`);
   }
 }
 
 function testStringConcatenation() {
-  const input = `"Hello" + " " + "World!"`
-  const evaluated = testEval(input)
-  if(!(evaluated instanceof String_OBJ)){
-    console.error(`object is not String. got=${evaluated.Type()}`)
-    if(evaluated instanceof error_OBJ){
-      console.error(`\t${evaluated.message}`)
+  const input = `"Hello" + " " + "World!"`;
+  const evaluated = testEval(input);
+  if (!(evaluated instanceof String_OBJ)) {
+    console.error(`object is not String. got=${evaluated.Type()}`);
+    if (evaluated instanceof error_OBJ) {
+      console.error(`\t${evaluated.message}`);
     }
-    return
+    return;
   }
-  if(evaluated.val != "Hello World!"){
-    console.error(`String has wrong value. got=${evaluated.val}`)
+  if (evaluated.val != "Hello World!") {
+    console.error(`String has wrong value. got=${evaluated.val}`);
+  }
+}
+
+function testBuiltinFunctions() {
+  const tests: { input: string; expected: number | string }[] = [
+    { input: `len("")`, expected: 0 },
+    { input: `len("four")`, expected: 4 },
+    { input: `len("hello world")`, expected: 11 },
+    {
+      input: `len(1)`,
+      expected: "argument to `len` not supported, got INTEGER",
+    },
+    {
+      input: `len("one", "two")`,
+      expected: "wrong number of arguments. got=2, want=1",
+    },
+  ];
+
+  for (const test of tests) {
+    const r = testEval(test.input);
+    if (typeof test.expected == "number") {
+      testIntegerObject(r, test.expected);
+    } else {
+      if (!(r instanceof error_OBJ)) {
+        console.error(`object is not Error. got="${r.constructor.name}"`);
+        continue;
+      }
+      if (r.message != test.expected) {
+        console.error(
+          `wrong error message. expected="${test.expected}", got="${r.message}"`
+        );
+      }
+    }
   }
 }
 
@@ -319,3 +355,4 @@ testFunctionApplication();
 testClosures();
 testStringLiteral();
 testStringConcatenation();
+testBuiltinFunctions();

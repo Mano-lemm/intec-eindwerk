@@ -26,7 +26,9 @@ import {
   type mk_Object,
   error_OBJ,
   Environment,
-  Function,
+  mk_Function,
+  builtins,
+  Builtin,
 } from "./object.ts";
 import { ObjectType } from "./types.ts";
 
@@ -54,15 +56,15 @@ export function evaluate(node: Node, env: Environment): mk_Object {
     return evalPrefixExpression(node.operator, right);
   } else if (node instanceof InfixExpression) {
     const left = evaluate(node.left, env);
-    if(left instanceof error_OBJ){
-      return left
+    if (left instanceof error_OBJ) {
+      return left;
     }
     if (node.right == undefined) {
       return new error_OBJ("right expression of InfixExpression is undefined");
     }
     const right = evaluate(node.right, env);
-    if(right instanceof error_OBJ){
-      return right
+    if (right instanceof error_OBJ) {
+      return right;
     }
     return evalInfixExpression(node.oper, left, right);
   } else if (node instanceof BlockStatement) {
@@ -87,27 +89,24 @@ export function evaluate(node: Node, env: Environment): mk_Object {
       return val;
     }
     env.set(node.name.val, val);
-    return val
+    return val;
   } else if (node instanceof Identifier) {
     return evalIdentifier(node, env);
   } else if (node instanceof FunctionLiteral) {
     const params = node.parameters;
     const body = node.body;
-    return new Function(params, body, env);
+    return new mk_Function(params, body, env);
   } else if (node instanceof CallExpression) {
-    const func = evaluate(node.func, env)
-    if(isError(func)){
-      return func
+    const func = evaluate(node.func, env);
+    if (isError(func)) {
+      return func;
     }
-    const args = evalExpressions(node.args, env)
-    if(args[0] != undefined && isError(args[0])){
-      return args[0]
+    const args = evalExpressions(node.args, env);
+    if (args[0] != undefined && isError(args[0])) {
+      return args[0];
     }
-    if(!(func instanceof Function)){
-      return new error_OBJ(`not a function: ${func.Type()}`)
-    }
-    return applyFunction(func, args)
-  } 
+    return applyFunction(func, args);
+  }
   return new error_OBJ(`unhandled ast node of type${node.constructor.name}`);
 }
 
@@ -186,8 +185,11 @@ function evalInfixExpression(
   }
   if (left.Type() == ObjectType.INTEGER && right.Type() == ObjectType.INTEGER) {
     return evalIntegerInfixExpression(operator, left, right);
-  } else if (left.Type() == ObjectType.STRING && right.Type() == ObjectType.STRING){
-    return evalStringInfixExpression(operator, left, right)
+  } else if (
+    left.Type() == ObjectType.STRING &&
+    right.Type() == ObjectType.STRING
+  ) {
+    return evalStringInfixExpression(operator, left, right);
   }
   // should only be entered by booleans or null
   // we can check for hard equality because we never allocate new booleans
@@ -233,13 +235,17 @@ function evalIntegerInfixExpression(
   }
 }
 
-function evalStringInfixExpression(operator: string, left: mk_Object, right: mk_Object): mk_Object {
-  if(operator != "+"){
-      return new error_OBJ(
-        `unknown operator: ${left.Type()} ${operator} ${right.Type()}`
-      );
+function evalStringInfixExpression(
+  operator: string,
+  left: mk_Object,
+  right: mk_Object
+): mk_Object {
+  if (operator != "+") {
+    return new error_OBJ(
+      `unknown operator: ${left.Type()} ${operator} ${right.Type()}`
+    );
   }
-  return new String_OBJ((left as String_OBJ).val + (right as String_OBJ).val)
+  return new String_OBJ((left as String_OBJ).val + (right as String_OBJ).val);
 }
 
 function evalIfExpression(node: IfExpression, env: Environment): mk_Object {
@@ -256,44 +262,53 @@ function evalIfExpression(node: IfExpression, env: Environment): mk_Object {
 }
 
 function evalIdentifier(node: Identifier, env: Environment): mk_Object {
-  const val = env.get(node.val);
-  if (val == undefined) {
-    return new error_OBJ(`identifier not found: ${node.val}`);
+  let val = env.get(node.val);
+  if (val != undefined) {
+    return val;
   }
-  return val;
+  val = builtins.get(node.val);
+  if (val != undefined) {
+    return val;
+  }
+  return new error_OBJ(`identifier not found: ${node.val}`);
 }
 
 function evalExpressions(exps: Expression[], env: Environment): mk_Object[] {
-  const result: mk_Object[] = []
+  const result: mk_Object[] = [];
   for (const expr of exps) {
-    const evaluated = evaluate(expr, env)
-    if(isError(evaluated)){
-      return [evaluated]
+    const evaluated = evaluate(expr, env);
+    if (isError(evaluated)) {
+      return [evaluated];
     }
-    result.push(evaluated)
+    result.push(evaluated);
   }
-  return result
+  return result;
 }
 
-function applyFunction(func: Function, args: mk_Object[]): mk_Object {
-  const extEnv = extendFunctionEnv(func, args)
-  const evaluated = evaluate(func.body, extEnv)
-  return unwrapReturnValue(evaluated)
+function applyFunction(func: mk_Object, args: mk_Object[]): mk_Object {
+  if (func instanceof mk_Function) {
+    const extEnv = extendFunctionEnv(func, args);
+    const evaluated = evaluate(func.body, extEnv);
+    return unwrapReturnValue(evaluated);
+  } else if (func instanceof Builtin) {
+    return func.fn(args);
+  }
+  return new error_OBJ(`not a function: ${func.Type()}`);
 }
 
-function extendFunctionEnv(func: Function, args: mk_Object[]) {
-  const fenv = new Environment(new Map<string, mk_Object>() ,func.env)
+function extendFunctionEnv(func: mk_Function, args: mk_Object[]) {
+  const fenv = new Environment(new Map<string, mk_Object>(), func.env);
   for (const [idx, obj] of func.params.entries()) {
-    fenv.set(obj.val, args[idx])
+    fenv.set(obj.val, args[idx]);
   }
-  return fenv
+  return fenv;
 }
 
 function unwrapReturnValue(obj: mk_Object): mk_Object {
-  if(obj instanceof returnValue){
-    return obj.value
+  if (obj instanceof returnValue) {
+    return obj.value;
   }
-  return obj
+  return obj;
 }
 
 function isTruthy(obj: mk_Object): boolean {

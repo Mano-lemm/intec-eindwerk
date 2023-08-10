@@ -105,7 +105,7 @@ export class lexer {
       this.readChar();
     }
     if (!this.ch.match(/"/)) {
-      return { type: TokenType.Illegal, literal: literal }
+      return { type: TokenType.Illegal, literal: literal };
     } else {
       this.readChar();
     }

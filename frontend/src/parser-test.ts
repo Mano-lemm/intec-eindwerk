@@ -11,7 +11,7 @@ import {
   IfExpression,
   FunctionLiteral,
   CallExpression,
-StringLiteral,
+  StringLiteral,
 } from "./ast.ts";
 import { lexer } from "./lexer.ts";
 import { Parser } from "./parser.ts";
@@ -650,23 +650,23 @@ function testCallExpressionParsing() {
 }
 
 function testStringLiteralExpression() {
-  const input = `"hello world";`
-  const l = new lexer(input)
-  const p = new Parser(l)
-  const prog = p.parseProgram()
-  checkParserErrors(p)
-  
-  const exp = (prog.statements[0] as ExpressionStatement).expr
-  if(exp == undefined){
-    return
+  const input = `"hello world";`;
+  const l = new lexer(input);
+  const p = new Parser(l);
+  const prog = p.parseProgram();
+  checkParserErrors(p);
+
+  const exp = (prog.statements[0] as ExpressionStatement).expr;
+  if (exp == undefined) {
+    return;
   }
-  if(!(exp instanceof StringLiteral)){
-    console.error(`exp not Stringliteral. got=${exp?.constructor.name}`)
-    return
+  if (!(exp instanceof StringLiteral)) {
+    console.error(`exp not Stringliteral. got=${exp?.constructor.name}`);
+    return;
   }
 
-  if(exp.val != "hello world"){
-    console.error(`literal.val not "${input}". got=${exp.val}`)
+  if (exp.val != "hello world") {
+    console.error(`literal.val not "${input}". got=${exp.val}`);
   }
 }
 
