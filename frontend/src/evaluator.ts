@@ -54,10 +54,16 @@ export function evaluate(node: Node, env: Environment): mk_Object {
     return evalPrefixExpression(node.operator, right);
   } else if (node instanceof InfixExpression) {
     const left = evaluate(node.left, env);
+    if(left instanceof error_OBJ){
+      return left
+    }
     if (node.right == undefined) {
       return new error_OBJ("right expression of InfixExpression is undefined");
     }
     const right = evaluate(node.right, env);
+    if(right instanceof error_OBJ){
+      return right
+    }
     return evalInfixExpression(node.oper, left, right);
   } else if (node instanceof BlockStatement) {
     return evalBlockStatement(node, env);
@@ -180,6 +186,8 @@ function evalInfixExpression(
   }
   if (left.Type() == ObjectType.INTEGER && right.Type() == ObjectType.INTEGER) {
     return evalIntegerInfixExpression(operator, left, right);
+  } else if (left.Type() == ObjectType.STRING && right.Type() == ObjectType.STRING){
+    return evalStringInfixExpression(operator, left, right)
   }
   // should only be entered by booleans or null
   // we can check for hard equality because we never allocate new booleans
@@ -223,6 +231,15 @@ function evalIntegerInfixExpression(
         `unknown operator: ${left.Type()} ${operator} ${right.Type()}`
       );
   }
+}
+
+function evalStringInfixExpression(operator: string, left: mk_Object, right: mk_Object): mk_Object {
+  if(operator != "+"){
+      return new error_OBJ(
+        `unknown operator: ${left.Type()} ${operator} ${right.Type()}`
+      );
+  }
+  return new String_OBJ((left as String_OBJ).val + (right as String_OBJ).val)
 }
 
 function evalIfExpression(node: IfExpression, env: Environment): mk_Object {

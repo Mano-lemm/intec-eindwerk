@@ -185,6 +185,7 @@ function testErrorHandling() {
       expectedMessage: "unknown operator: BOOLEAN + BOOLEAN",
     },
     { input: "foobar", expectedMessage: "identifier not found: foobar" },
+    { input: `"Hello" - "World"`, expectedMessage: "unknown operator: STRING - STRING"},
   ];
 
   for (const test of tests) {
@@ -292,6 +293,21 @@ function testStringLiteral() {
   }
 }
 
+function testStringConcatenation() {
+  const input = `"Hello" + " " + "World!"`
+  const evaluated = testEval(input)
+  if(!(evaluated instanceof String_OBJ)){
+    console.error(`object is not String. got=${evaluated.Type()}`)
+    if(evaluated instanceof error_OBJ){
+      console.error(`\t${evaluated.message}`)
+    }
+    return
+  }
+  if(evaluated.val != "Hello World!"){
+    console.error(`String has wrong value. got=${evaluated.val}`)
+  }
+}
+
 testEvalIntegerExpression();
 testEvalBooleanExpression();
 testBangOperator();
@@ -302,3 +318,4 @@ testFunctionObject();
 testFunctionApplication();
 testClosures();
 testStringLiteral();
+testStringConcatenation();
