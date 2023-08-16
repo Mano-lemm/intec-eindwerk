@@ -58,6 +58,7 @@ export enum operationOrder {
   PRODUCT = 4,
   PREFIX = 5,
   CALL = 6,
+  INDEX = 7,
 }
 
 export enum ObjectType {
@@ -69,4 +70,5 @@ export enum ObjectType {
   ERROR = "ERROR",
   FUNCTION = "FUNCTION",
   BUILTIN = "BUILTIN",
+  ARRAY = "ARRAY"
 }

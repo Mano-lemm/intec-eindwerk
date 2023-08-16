@@ -250,3 +250,29 @@ export class CallExpression implements Expression {
       .join(", ")})`;
   }
 }
+
+export class ArrayLiteral implements Expression {
+  constructor(public token: token, public elements: Expression[]) {}
+  expression(): void {
+    throw new Error("Method not implemented.");
+  }
+  tokenLiteral(): string {
+    return String(this.token.literal);
+  }
+  String(): string {
+    return `[${this.elements.map((e) => e.String()).join(", ")}]`;
+  }
+}
+
+export class IndexExpression implements Expression {
+  constructor(public token: token, public left: Expression, public index: Expression) {}
+  expression(): void {
+    throw new Error("Method not implemented.");
+  }
+  tokenLiteral(): string {
+    return String(this.token.literal)
+  }
+  String(): string {
+    return `(${this.left.String()}[${this.index.String()}])`
+  }
+}

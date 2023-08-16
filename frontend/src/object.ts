@@ -110,6 +110,16 @@ export class Builtin implements mk_Object {
   }
 }
 
+export class Array_OBJ implements mk_Object {
+  constructor(public elements: mk_Object[]) {}
+  Type(): ObjectType {
+    return ObjectType.ARRAY
+  }
+  Inspect(): string {
+    return `[${this.elements.map(e => e.Inspect()).join(", ")}]`
+  }
+}
+
 export const TRUE = new Boolean_OBJ(true);
 export const FALSE = new Boolean_OBJ(false);
 export const NULL = new Null_OBJ();
@@ -130,4 +140,16 @@ export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
       return new Integer_OBJ(str[0].val.length);
     }),
   ],
+  // ["first", new Builtin((args: mk_Object[]) => {
+  //   if (args.length != 1) {
+  //     return new error_OBJ(
+  //       `wrong number of arguments. got=${args.length}, want=1`
+  //     );
+  //   }
+  //   if (!(args[0] instanceof Array_OBJ)) {
+  //     return new error_OBJ(
+  //       `argument to \`first\` not supported, got ${args[0].Type()}`
+  //     );
+  //   }
+  // })]
 ]);

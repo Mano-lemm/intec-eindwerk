@@ -12,6 +12,8 @@ import {
   FunctionLiteral,
   CallExpression,
   StringLiteral,
+  ArrayLiteral,
+IndexExpression,
 } from "./ast.ts";
 import { lexer } from "./lexer.ts";
 import { Parser } from "./parser.ts";
@@ -372,6 +374,8 @@ function testOperatorPrecendenceParsing() {
       input: "add(a + b + c * d / f + g)",
       expected: "add((((a + b) + ((c * d) / f)) + g))",
     },
+    { input: "a * [1, 2, 3, 4][b * c] * d", expected: "((a * ([1, 2, 3, 4][(b * c)])) * d)" },
+    { input: "add(a * b[2], b[1], 2 * [1, 2][1])", expected: "add((a * (b[2])), (b[1]), (2 * ([1, 2][1])))" },
   ];
 
   tests.forEach((test) => {
@@ -670,17 +674,73 @@ function testStringLiteralExpression() {
   }
 }
 
-// testLet();
-// testReturn();
-// testString();
-// testIdentifierExpr();
-// testIntegerLiteralExpression();
-// testParsingPrefixExpressions();
-// testParsingInfixExpressions();
-// testOperatorPrecendenceParsing();
-// testIfExpressions();
-// testParsingIfElseExpression();
-// testFunctionLiteralParsing();
-// testFunctionParameterParsing();
-// testCallExpressionParsing();
+function testParsingArrayLiterals() {
+  const input = "[1, 2 * 2, 3 + 3]";
+  const l = new lexer(input);
+  const p = new Parser(l);
+  const prog = p.parseProgram();
+  if (checkParserErrors(p)) {
+    return;
+  }
+
+  const stmt = prog.statements[0] as ExpressionStatement;
+  if (stmt instanceof ArrayLiteral) {
+    console.error(
+      `exp not ast.ArrayLiteral. got=${stmt.expr?.constructor.name}`
+    );
+    return;
+  }
+  const array = stmt.expr as ArrayLiteral;
+  if (array.elements.length != 3) {
+    console.error(`len(array.Elements) not 3. got=${array.elements.length}`);
+    return;
+  }
+  testLiteral(array.elements[0], 1);
+  testInfixExpression(array.elements[1], 2, "*", 2);
+  testInfixExpression(array.elements[2], 3, "+", 3);
+}
+
+function testParsingIndexExpressions() {
+  const input = "myArray[1 + 1]"
+
+  const l = new lexer(input)
+  const p = new Parser(l)
+  const program = p.parseProgram()
+  if(checkParserErrors(p)){
+    return
+  }
+  if(!(program.statements[0] instanceof ExpressionStatement)){
+    console.error(`exp not ExpressionStatement. got=${program.statements[0].constructor.name}`)
+    return
+  }
+  const stmt = program.statements[0] as ExpressionStatement
+  if(!(stmt.expr instanceof IndexExpression)){
+    console.error(`exp not IndexExpression. got=${stmt.expr?.constructor.name}`)
+    return
+  }
+  const indexExp = stmt.expr as IndexExpression
+  if(!testLiteral(indexExp.left, "myArray")){
+    console.error("xd")
+    return
+  }
+  if(!testInfixExpression(indexExp.index, 1, "+", 1)){
+    console.error("xd")
+  }
+}
+
+testLet();
+testReturn();
+testString();
+testIdentifierExpr();
+testIntegerLiteralExpression();
+testParsingPrefixExpressions();
+testParsingInfixExpressions();
+testOperatorPrecendenceParsing();
+testIfExpressions();
+testParsingIfElseExpression();
+testFunctionLiteralParsing();
+testFunctionParameterParsing();
+testCallExpressionParsing();
 testStringLiteralExpression();
+testParsingArrayLiterals();
+testParsingIndexExpressions();

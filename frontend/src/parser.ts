@@ -15,6 +15,8 @@ import {
   FunctionLiteral,
   CallExpression,
   StringLiteral,
+  ArrayLiteral,
+IndexExpression,
 } from "./ast.ts";
 import { type lexer } from "./lexer.ts";
 import { precedences } from "./maps.ts";
@@ -108,6 +110,12 @@ export class Parser {
         return this.parseFunctionLiteral();
       },
     ],
+    [
+      TokenType.LeftSquareBrace,
+      () => {
+        return this.parseArrayLiteral();
+      },
+    ],
   ]);
   private infixParseFns: Map<TokenType, infixParseFn> = new Map([
     [
@@ -164,6 +172,9 @@ export class Parser {
         return this.parseCallExpression(expr);
       },
     ],
+    [TokenType.LeftSquareBrace, (expr: Expression) => {
+      return this.parseIndexExpression(expr)
+    }]
   ]);
 
   constructor(l: lexer) {
@@ -415,12 +426,16 @@ export class Parser {
   }
 
   private parseCallExpression(expr: Expression): Expression {
-    return new CallExpression(this.curToken, expr, this.parseCallArguments());
+    return new CallExpression(
+      this.curToken,
+      expr,
+      this.parseExpressionList(TokenType.RightRoundBrace)
+    );
   }
 
-  private parseCallArguments(): Expression[] {
+  private parseExpressionList(end: TokenType): Expression[] {
     const args: Expression[] = [];
-    if (this.peekTokenIs(TokenType.RightRoundBrace)) {
+    if (this.peekTokenIs(end)) {
       this.nextToken();
       return args;
     }
@@ -439,10 +454,28 @@ export class Parser {
       }
     }
 
-    if (!this.expectPeek(TokenType.RightRoundBrace)) {
+    if (!this.expectPeek(end)) {
       return [];
     }
     return args;
+  }
+
+  private parseArrayLiteral(): Expression {
+    const cur = this.curToken;
+    const el = this.parseExpressionList(TokenType.RightSquareBrace);
+    return new ArrayLiteral(cur, el);
+  }
+
+  private parseIndexExpression(expr: Expression): Expression {
+    const cur = this.curToken
+    const left = expr
+    this.nextToken()
+    const index = this.parseExpression(operationOrder.LOWEST)
+    if(!this.expectPeek(TokenType.RightSquareBrace) || index == undefined){
+      console.log("fuck")
+      return new Identifier()
+    }
+    return new IndexExpression(cur, left, index)
   }
 
   private parseBoolean(): Expression {
