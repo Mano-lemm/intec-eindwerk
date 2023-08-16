@@ -16,7 +16,7 @@ import {
   CallExpression,
   StringLiteral,
   ArrayLiteral,
-IndexExpression,
+  IndexExpression,
 } from "./ast.ts";
 import { type lexer } from "./lexer.ts";
 import { precedences } from "./maps.ts";
@@ -172,9 +172,12 @@ export class Parser {
         return this.parseCallExpression(expr);
       },
     ],
-    [TokenType.LeftSquareBrace, (expr: Expression) => {
-      return this.parseIndexExpression(expr)
-    }]
+    [
+      TokenType.LeftSquareBrace,
+      (expr: Expression) => {
+        return this.parseIndexExpression(expr);
+      },
+    ],
   ]);
 
   constructor(l: lexer) {
@@ -467,15 +470,15 @@ export class Parser {
   }
 
   private parseIndexExpression(expr: Expression): Expression {
-    const cur = this.curToken
-    const left = expr
-    this.nextToken()
-    const index = this.parseExpression(operationOrder.LOWEST)
-    if(!this.expectPeek(TokenType.RightSquareBrace) || index == undefined){
-      console.log("fuck")
-      return new Identifier()
+    const cur = this.curToken;
+    const left = expr;
+    this.nextToken();
+    const index = this.parseExpression(operationOrder.LOWEST);
+    if (!this.expectPeek(TokenType.RightSquareBrace) || index == undefined) {
+      console.log("fuck");
+      return new Identifier();
     }
-    return new IndexExpression(cur, left, index)
+    return new IndexExpression(cur, left, index);
   }
 
   private parseBoolean(): Expression {

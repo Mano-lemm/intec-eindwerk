@@ -1,4 +1,4 @@
-import { BlockStatement, Identifier } from "./ast.ts";
+import { type BlockStatement, type Identifier } from "./ast.ts";
 import { ObjectType } from "./types.ts";
 
 export interface mk_Object {
@@ -113,10 +113,10 @@ export class Builtin implements mk_Object {
 export class Array_OBJ implements mk_Object {
   constructor(public elements: mk_Object[]) {}
   Type(): ObjectType {
-    return ObjectType.ARRAY
+    return ObjectType.ARRAY;
   }
   Inspect(): string {
-    return `[${this.elements.map(e => e.Inspect()).join(", ")}]`
+    return `[${this.elements.map((e) => e.Inspect()).join(", ")}]`;
   }
 }
 

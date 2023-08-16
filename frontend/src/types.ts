@@ -70,5 +70,5 @@ export enum ObjectType {
   ERROR = "ERROR",
   FUNCTION = "FUNCTION",
   BUILTIN = "BUILTIN",
-  ARRAY = "ARRAY"
+  ARRAY = "ARRAY",
 }

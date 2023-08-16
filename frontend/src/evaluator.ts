@@ -14,9 +14,9 @@ import {
   Identifier,
   FunctionLiteral,
   CallExpression,
-  Expression,
-ArrayLiteral,
-IndexExpression,
+  type Expression,
+  ArrayLiteral,
+  IndexExpression,
 } from "./ast.ts";
 import {
   FALSE,
@@ -31,7 +31,7 @@ import {
   mk_Function,
   builtins,
   Builtin,
-Array_OBJ,
+  Array_OBJ,
 } from "./object.ts";
 import { ObjectType } from "./types.ts";
 
@@ -110,21 +110,21 @@ export function evaluate(node: Node, env: Environment): mk_Object {
     }
     return applyFunction(func, args);
   } else if (node instanceof ArrayLiteral) {
-    const el = evalExpressions(node.elements, env)
-    if(el.length === 1 && el[0] instanceof error_OBJ){
-      return el[0]
+    const el = evalExpressions(node.elements, env);
+    if (el.length === 1 && el[0] instanceof error_OBJ) {
+      return el[0];
     }
-    return new Array_OBJ(el)
+    return new Array_OBJ(el);
   } else if (node instanceof IndexExpression) {
-    const left = evaluate(node.left, env)
-    if(isError(left)){
-      return left
+    const left = evaluate(node.left, env);
+    if (isError(left)) {
+      return left;
     }
-    const idx = evaluate(node.index, env)
-    if(isError(idx)){
-      return idx
+    const idx = evaluate(node.index, env);
+    if (isError(idx)) {
+      return idx;
     }
-    return evalIndexExpression(left, idx)
+    return evalIndexExpression(left, idx);
   }
   return new error_OBJ(`unhandled ast node of type ${node.constructor.name}`);
 }
@@ -305,17 +305,20 @@ function evalExpressions(exps: Expression[], env: Environment): mk_Object[] {
 }
 
 function evalIndexExpression(left: mk_Object, index: mk_Object): mk_Object {
-  if(left.Type() == ObjectType.ARRAY && index.Type() == ObjectType.INTEGER){
-    return evalArrayIndexExpression(left as Array_OBJ, index as Integer_OBJ)
+  if (left.Type() == ObjectType.ARRAY && index.Type() == ObjectType.INTEGER) {
+    return evalArrayIndexExpression(left as Array_OBJ, index as Integer_OBJ);
   }
-  return new error_OBJ(`index operator not supported: ${left.Type()}`)
+  return new error_OBJ(`index operator not supported: ${left.Type()}`);
 }
 
-function evalArrayIndexExpression(left: Array_OBJ, index: Integer_OBJ): mk_Object {
-  if(index.val < 0 || index.val > left.elements.length - 1){
-    return NULL
+function evalArrayIndexExpression(
+  left: Array_OBJ,
+  index: Integer_OBJ
+): mk_Object {
+  if (index.val < 0 || index.val > left.elements.length - 1) {
+    return NULL;
   }
-  return left.elements[index.val]
+  return left.elements[index.val];
 }
 
 function applyFunction(func: mk_Object, args: mk_Object[]): mk_Object {

@@ -265,14 +265,18 @@ export class ArrayLiteral implements Expression {
 }
 
 export class IndexExpression implements Expression {
-  constructor(public token: token, public left: Expression, public index: Expression) {}
+  constructor(
+    public token: token,
+    public left: Expression,
+    public index: Expression
+  ) {}
   expression(): void {
     throw new Error("Method not implemented.");
   }
   tokenLiteral(): string {
-    return String(this.token.literal)
+    return String(this.token.literal);
   }
   String(): string {
-    return `(${this.left.String()}[${this.index.String()}])`
+    return `(${this.left.String()}[${this.index.String()}])`;
   }
 }
