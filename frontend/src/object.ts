@@ -140,16 +140,80 @@ export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
       return new Integer_OBJ(str[0].val.length);
     }),
   ],
-  // ["first", new Builtin((args: mk_Object[]) => {
-  //   if (args.length != 1) {
-  //     return new error_OBJ(
-  //       `wrong number of arguments. got=${args.length}, want=1`
-  //     );
-  //   }
-  //   if (!(args[0] instanceof Array_OBJ)) {
-  //     return new error_OBJ(
-  //       `argument to \`first\` not supported, got ${args[0].Type()}`
-  //     );
-  //   }
-  // })]
+  [
+    "first",
+    new Builtin((args: mk_Object[]) => {
+      if (args.length != 1) {
+        return new error_OBJ(
+          `wrong number of arguments. got=${args.length}, want=1`
+        );
+      }
+      if (!(args[0] instanceof Array_OBJ)) {
+        return new error_OBJ(
+          `argument to \`first\` not supported, got ${args[0].Type()}`
+        );
+      }
+      if (args[0].elements.length > 0) {
+        return args[0].elements[0];
+      }
+      return NULL;
+    }),
+  ],
+  [
+    "last",
+    new Builtin((args: mk_Object[]) => {
+      if (args.length != 1) {
+        return new error_OBJ(
+          `wrong number of arguments. got=${args.length}, want=1`
+        );
+      }
+      if (!(args[0] instanceof Array_OBJ)) {
+        return new error_OBJ(
+          `argument to \`first\` not supported, got ${args[0].Type()}`
+        );
+      }
+      if (args[0].elements.length > 0) {
+        return args[0].elements[args[0].elements.length - 1];
+      }
+      return NULL;
+    }),
+  ],
+  [
+    "rest",
+    new Builtin((args: mk_Object[]) => {
+      if (args.length != 1) {
+        return new error_OBJ(
+          `wrong number of arguments. got=${args.length}, want=1`
+        );
+      }
+      if (!(args[0] instanceof Array_OBJ)) {
+        return new error_OBJ(
+          `argument to \`rest\` not supported, got ${args[0].Type()}`
+        );
+      }
+      if (args[0].elements.length > 0) {
+        return new Array_OBJ(args[0].elements.slice(1));
+      }
+      return NULL;
+    }),
+  ],
+  [
+    "push",
+    new Builtin((args: mk_Object[]) => {
+      if (args.length != 2) {
+        return new error_OBJ(
+          `wrong number of arguments. got=${args.length}, want=2`
+        );
+      }
+      if (!(args[0] instanceof Array_OBJ)) {
+        return new error_OBJ(
+          `argument to \`push\` not supported, got ${args[0].Type()}`
+        );
+      }
+      // deep copy the array
+      const arr = args[0].elements.slice();
+      arr.push(args[1]);
+      return new Array_OBJ(arr);
+    }),
+  ],
 ]);
