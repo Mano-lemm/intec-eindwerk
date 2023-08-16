@@ -280,3 +280,18 @@ export class IndexExpression implements Expression {
     return `(${this.left.String()}[${this.index.String()}])`;
   }
 }
+
+export class HashLiteral implements Expression {
+  constructor(public token: token, public pairs: Map<Expression, Expression>) {}
+  expression(): void {
+    throw new Error("Method not implemented.");
+  }
+  tokenLiteral(): string {
+    return String(this.token.literal);
+  }
+  String(): string {
+    return `{${Array.from(this.pairs)
+      .map((pair) => `${pair[0].String()}: ${pair[1].String()}`)
+      .join(", ")}}`;
+  }
+}

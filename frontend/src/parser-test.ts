@@ -14,6 +14,8 @@ import {
   StringLiteral,
   ArrayLiteral,
   IndexExpression,
+  HashLiteral,
+  BooleanLiteral,
 } from "./ast.ts";
 import { lexer } from "./lexer.ts";
 import { Parser } from "./parser.ts";
@@ -752,6 +754,227 @@ function testParsingIndexExpressions() {
   }
 }
 
+function testParsingHashLiteralBooleanKeys() {
+  const input = `{true: 1, false: 2}`;
+  const expected = new Map<boolean, number>([
+    [true, 1],
+    [false, 2],
+  ]);
+  const l = new lexer(input);
+  const p = new Parser(l);
+  const program = p.parseProgram();
+  if (checkParserErrors(p)) {
+    return;
+  }
+  if (!(program.statements[0] instanceof ExpressionStatement)) {
+    console.error(
+      `exp not ExpressionStatement. got=${program.statements[0].constructor.name}`
+    );
+    return;
+  }
+  const stmt = program.statements[0];
+  if (!(stmt.expr instanceof HashLiteral)) {
+    console.error(
+      `exp not HashLiteral. got=${
+        stmt.expr == undefined ? "undefined" : stmt.expr.constructor.name
+      }`
+    );
+    return;
+  }
+  const hash = stmt.expr;
+  for (const real of hash.pairs) {
+    const key = real[0];
+    const val = real[1];
+    if (!(key instanceof BooleanLiteral)) {
+      console.error(
+        `key is not BooleanLiteral. got=${
+          key == undefined ? "undefined" : key.constructor.name
+        }`
+      );
+      continue;
+    }
+    const exp = expected.get(key.val);
+    if (val == undefined || exp == undefined) {
+      console.error(`val is undefined`);
+      continue;
+    }
+    testLiteral(val, exp);
+  }
+}
+
+function testParsingHashLiteralIntegerKeys() {
+  const input = `{1: 1, 2: 2, 3: 3}`;
+  const expected = new Map<number, number>([
+    [1, 1],
+    [2, 2],
+    [3, 3],
+  ]);
+  const l = new lexer(input);
+  const p = new Parser(l);
+  const program = p.parseProgram();
+  if (checkParserErrors(p)) {
+    return;
+  }
+  if (!(program.statements[0] instanceof ExpressionStatement)) {
+    console.error(
+      `exp not ExpressionStatement. got=${program.statements[0].constructor.name}`
+    );
+    return;
+  }
+  const stmt = program.statements[0];
+  if (!(stmt.expr instanceof HashLiteral)) {
+    console.error(
+      `exp not HashLiteral. got=${
+        stmt.expr == undefined ? "undefined" : stmt.expr.constructor.name
+      }`
+    );
+    return;
+  }
+  const hash = stmt.expr;
+  for (const real of hash.pairs) {
+    const key = real[0];
+    const val = real[1];
+    if (!(key instanceof IntegerLiteral)) {
+      console.error(
+        `key is not IntegerLiteral. got=${
+          key == undefined ? "undefined" : key.constructor.name
+        }`
+      );
+      continue;
+    }
+    const exp = expected.get(key.val);
+    if (val == undefined || exp == undefined) {
+      console.error(`val is undefined`);
+      continue;
+    }
+    testLiteral(val, exp);
+  }
+}
+
+function testParsingHashLiteralStringKeys() {
+  const input = `{"one": 1, "two": 2, "three": 3}`;
+  const expected = new Map<string, number>([
+    ["one", 1],
+    ["two", 2],
+    ["three", 3],
+  ]);
+  const l = new lexer(input);
+  const p = new Parser(l);
+  const program = p.parseProgram();
+  if (checkParserErrors(p)) {
+    return;
+  }
+  if (!(program.statements[0] instanceof ExpressionStatement)) {
+    console.error(
+      `exp not ExpressionStatement. got=${program.statements[0].constructor.name}`
+    );
+    return;
+  }
+  const stmt = program.statements[0];
+  if (!(stmt.expr instanceof HashLiteral)) {
+    console.error(
+      `exp not HashLiteral. got=${
+        stmt.expr == undefined ? "undefined" : stmt.expr.constructor.name
+      }`
+    );
+    return;
+  }
+  const hash = stmt.expr;
+  for (const real of hash.pairs) {
+    const key = real[0];
+    const val = real[1];
+    if (!(key instanceof StringLiteral)) {
+      console.error(
+        `key is not StringLiteral. got=${
+          key == undefined ? "undefined" : key.constructor.name
+        }`
+      );
+      continue;
+    }
+    const exp = expected.get(key.val);
+    if (val == undefined || exp == undefined) {
+      console.error(`val is undefined`);
+      continue;
+    }
+    testLiteral(val, exp);
+  }
+}
+
+function testParsingEmptyHashLiteral() {
+  const input = `{}`;
+  const l = new lexer(input);
+  const p = new Parser(l);
+  const program = p.parseProgram();
+  if (checkParserErrors(p)) {
+    return;
+  }
+  if (!(program.statements[0] instanceof ExpressionStatement)) {
+    console.error(
+      `exp not ExpressionStatement. got=${program.statements[0].constructor.name}`
+    );
+    return;
+  }
+  const stmt = program.statements[0];
+  if (!(stmt.expr instanceof HashLiteral)) {
+    console.error(
+      `exp not HashLiteral. got=${
+        stmt.expr == undefined ? "undefined" : stmt.expr.constructor.name
+      }`
+    );
+    return;
+  }
+  const hash = stmt.expr;
+  if (hash.pairs.size != 0) {
+    console.error(`Pairs has wrong size. got=${hash.pairs.size}`);
+  }
+}
+
+function testParsingHashLiteralsWithExpressions() {
+  const input = `{"one": 0 + 1, "two": 10 - 8, "three": 15 / 5}`;
+  const expected = new Map<string, (e: Expression) => boolean>([
+    ["one", (e: Expression) => testInfixExpression(e, 0, "+", 1)],
+    ["two", (e: Expression) => testInfixExpression(e, 10, "-", 8)],
+    ["three", (e: Expression) => testInfixExpression(e, 15, "/", 5)],
+  ]);
+  const l = new lexer(input);
+  const p = new Parser(l);
+  const program = p.parseProgram();
+  if (checkParserErrors(p)) {
+    return;
+  }
+  if (!(program.statements[0] instanceof ExpressionStatement)) {
+    console.error(
+      `exp not ExpressionStatement. got=${program.statements[0].constructor.name}`
+    );
+    return;
+  }
+  const stmt = program.statements[0];
+  if (!(stmt.expr instanceof HashLiteral)) {
+    console.error(
+      `exp not HashLiteral. got=${
+        stmt.expr == undefined ? "undefined" : stmt.expr.constructor.name
+      }`
+    );
+    return;
+  }
+  const hash = stmt.expr;
+  if (hash.pairs.size != 3) {
+    console.error(`Pairs has wrong size. got=${hash.pairs.size}`);
+  }
+  for (const [key, value] of hash.pairs) {
+    if (!(key instanceof StringLiteral)) {
+      console.error(`key is not StringLiteral. got=${key.constructor.name}`);
+      continue;
+    }
+    const tf = expected.get(key.val);
+    if (tf == undefined) {
+      console.error("amogus");
+      continue;
+    }
+    tf(value);
+  }
+}
+
 testLet();
 testReturn();
 testString();
@@ -768,3 +991,8 @@ testCallExpressionParsing();
 testStringLiteralExpression();
 testParsingArrayLiterals();
 testParsingIndexExpressions();
+testParsingHashLiteralIntegerKeys();
+testParsingHashLiteralBooleanKeys();
+testParsingHashLiteralStringKeys();
+testParsingEmptyHashLiteral();
+testParsingHashLiteralsWithExpressions();

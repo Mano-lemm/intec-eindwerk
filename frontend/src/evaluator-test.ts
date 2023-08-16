@@ -1,4 +1,3 @@
-import { evaluate } from "./evaluator.ts";
 import {
   mk_Function,
   Integer_OBJ,

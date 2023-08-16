@@ -17,6 +17,7 @@ import {
   StringLiteral,
   ArrayLiteral,
   IndexExpression,
+  HashLiteral,
 } from "./ast.ts";
 import { type lexer } from "./lexer.ts";
 import { precedences } from "./maps.ts";
@@ -114,6 +115,12 @@ export class Parser {
       TokenType.LeftSquareBrace,
       () => {
         return this.parseArrayLiteral();
+      },
+    ],
+    [
+      TokenType.LeftSquirlyBrace,
+      () => {
+        return this.parseHashLiteral();
       },
     ],
   ]);
@@ -479,6 +486,38 @@ export class Parser {
       return new Identifier();
     }
     return new IndexExpression(cur, left, index);
+  }
+
+  private parseHashLiteral(): Expression {
+    const cur = this.curToken;
+    const pairs = new Map<Expression, Expression>();
+    while (!this.peekTokenIs(TokenType.RightSquirlyBrace)) {
+      this.nextToken();
+      const key = this.parseExpression(operationOrder.LOWEST);
+      if (!this.expectPeek(TokenType.Colon) || key == undefined) {
+        console.log("uwu");
+        return new Identifier();
+      }
+      this.nextToken();
+      const val = this.parseExpression(operationOrder.LOWEST);
+      if (val == undefined) {
+        console.log("omo");
+        return new Identifier();
+      }
+      pairs.set(key, val);
+      if (
+        !this.peekTokenIs(TokenType.RightSquirlyBrace) &&
+        !this.expectPeek(TokenType.Comma)
+      ) {
+        console.log("po");
+        return new Identifier();
+      }
+    }
+    if (!this.expectPeek(TokenType.RightSquirlyBrace)) {
+      console.log("fuck");
+      return new Identifier();
+    }
+    return new HashLiteral(cur, pairs);
   }
 
   private parseBoolean(): Expression {
