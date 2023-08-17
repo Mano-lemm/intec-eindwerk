@@ -18,7 +18,7 @@ import {
   ArrayLiteral,
   IndexExpression,
 HashLiteral,
-} from "./ast.ts";
+} from "./ast";
 import {
   FALSE,
   Integer_OBJ,
@@ -35,8 +35,8 @@ import {
   Array_OBJ,
 Hash,
 Hashable,
-} from "./object.ts";
-import { ObjectType } from "./types.ts";
+} from "./object";
+import { ObjectType } from "./types";
 
 // being able to switch on the type would be very nice here but
 // as far as i know it isnt possible in typescript
@@ -325,7 +325,8 @@ function evalArrayIndexExpression(
   if (index.val < 0 || index.val > left.elements.length - 1) {
     return NULL;
   }
-  return left.elements[index.val];
+  const r = left.elements[index.val]
+  return r == undefined ? NULL : r;
 }
 
 function evalHashIndexExpression(hash: Hash, index: mk_Object) : mk_Object {
@@ -375,7 +376,10 @@ function applyFunction(func: mk_Object, args: mk_Object[]): mk_Object {
 function extendFunctionEnv(func: mk_Function, args: mk_Object[]) {
   const fenv = new Environment(new Map<string, mk_Object>(), func.env);
   for (const [idx, obj] of func.params.entries()) {
-    fenv.set(obj.val, args[idx]);
+    const arg = args[idx]
+    if(arg != undefined){
+      fenv.set(obj.val, arg);
+    }
   }
   return fenv;
 }

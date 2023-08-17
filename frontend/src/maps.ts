@@ -1,4 +1,4 @@
-import { TokenType, operationOrder } from "./types.ts";
+import { TokenType, operationOrder } from "./types";
 
 export const precedences: Map<TokenType, operationOrder> = new Map([
   [TokenType.Equal, operationOrder.EQUALS],

@@ -1,5 +1,5 @@
-import { type Expression } from "./ast.ts";
-import { mk_Object } from "./object.ts";
+import { type Expression } from "./ast";
+import { mk_Object } from "./object";
 
 export type prefixParseFn = () => Expression;
 export type infixParseFn = (expr: Expression) => Expression;

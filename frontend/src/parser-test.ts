@@ -16,15 +16,16 @@ import {
   IndexExpression,
   HashLiteral,
   BooleanLiteral,
-} from "./ast.ts";
-import { lexer } from "./lexer.ts";
-import { Parser } from "./parser.ts";
-import { TokenType } from "./types.ts";
+  Statement,
+} from "./ast";
+import { lexer } from "./lexer";
+import { Parser } from "./parser";
+import { TokenType } from "./types";
 import {
   checkParserErrors,
   testInfixExpression,
   testLiteral,
-} from "./test-helper.ts";
+} from "./test-helper";
 
 function testLet() {
   const tests = [
@@ -51,7 +52,7 @@ function testLet() {
 
     if (!(program.statements[0] instanceof LetStatement)) {
       console.error(
-        `Expected expression of type LetStatement, got ${program.statements[0].constructor.name} instead.`
+        `Expected expression of type LetStatement, got ${(program.statements[0] as LetStatement).constructor.name} instead.`
       );
       continue;
     }
@@ -102,7 +103,7 @@ function testReturn() {
       console.error(`Expected a statement.val, got undefined instead.`);
       return;
     }
-    testLiteral(statement.rval, resultValues[idx]);
+    testLiteral(statement.rval, resultValues[idx] as number);
   });
 }
 
@@ -144,7 +145,7 @@ function testIdentifierExpr() {
   const stmt = prog.statements[0];
   if (!(stmt instanceof ExpressionStatement)) {
     console.error(
-      `Statement is not an ExpressionStatement, got a ${prog.statements[0].constructor.name} instead.`
+      `Statement is not an ExpressionStatement, got a ${(prog.statements[0] as Statement).constructor.name} instead.`
     );
   }
 
@@ -230,7 +231,7 @@ function testParsingPrefixExpressions() {
 
     if (!(prog.statements[0] instanceof ExpressionStatement)) {
       console.error(
-        `statement is not an ExpressionStatement, got ${prog.statements[0].constructor.name} instead.`
+        `statement is not an ExpressionStatement, got ${(prog.statements[0] as Statement).constructor.name} instead.`
       );
       continue;
     }
@@ -303,7 +304,7 @@ function testParsingInfixExpressions() {
 
     if (!(prog.statements[0] instanceof ExpressionStatement)) {
       console.error(
-        `statement is not an ExpressionStatement, got ${prog.statements[0].constructor.name} instead.`
+        `statement is not an ExpressionStatement, got ${(prog.statements[0] as Statement).constructor.name} instead.`
       );
       return;
     }
@@ -419,7 +420,7 @@ function testIfExpressions() {
 
   if (!(prog.statements[0] instanceof ExpressionStatement)) {
     console.error(
-      `prog.statements[0] is not an ExpressionStatement, got ${prog.statements[0].constructor.name} instead.`
+      `prog.statements[0] is not an ExpressionStatement, got ${(prog.statements[0] as Statement).constructor.name} instead.`
     );
     return;
   }
@@ -493,7 +494,7 @@ function testParsingIfElseExpression() {
 
   if (!(exp.alternative.statements[0] instanceof ExpressionStatement)) {
     console.error(
-      `alt.statements[0] is not of type ExpressionStatement, got ${exp.alternative.statements[0].constructor.name} instead.`
+      `alt.statements[0] is not of type ExpressionStatement, got ${(exp.alternative.statements[0] as Statement).constructor.name} instead.`
     );
     return;
   }
@@ -536,7 +537,7 @@ function testFunctionLiteralParsing() {
 
   if (!(prog.statements[0] instanceof ExpressionStatement)) {
     console.error(
-      `prog.statements[0] is not ExpressionStatement, got ${prog.statements[0].constructor.name} instead.`
+      `prog.statements[0] is not ExpressionStatement, got ${(prog.statements[0] as Statement).constructor.name} instead.`
     );
     return;
   }
@@ -556,8 +557,8 @@ function testFunctionLiteralParsing() {
     );
     return;
   }
-  testLiteral(func.parameters[0], "x");
-  testLiteral(func.parameters[1], "y");
+  testLiteral((func.parameters[0] as Identifier), "x");
+  testLiteral((func.parameters[1] as Identifier), "y");
 
   if (func.body.statements.length != 1) {
     console.error(
@@ -568,7 +569,7 @@ function testFunctionLiteralParsing() {
 
   if (!(func.body.statements[0] instanceof ExpressionStatement)) {
     console.error(
-      `func.body.statements[0] is not ExpressionStatement, got ${func.body.statements[0].constructor.name} instead.`
+      `func.body.statements[0] is not ExpressionStatement, got ${(func.body.statements[0] as Statement).constructor.name} instead.`
     );
     return;
   }
@@ -598,7 +599,7 @@ function testFunctionParameterParsing() {
 
     if (!(prog.statements[0] instanceof ExpressionStatement)) {
       console.error(
-        `Expected ExpressionStatement, got ${prog.statements[0].constructor.name} instead`
+        `Expected ExpressionStatement, got ${(prog.statements[0] as Statement).constructor.name} instead`
       );
       continue;
     }
@@ -616,7 +617,7 @@ function testFunctionParameterParsing() {
 
     // lovely
     prog.statements[0].expr.parameters.forEach((ident, idx) => {
-      testLiteral(ident, test.expected[idx]);
+      testLiteral(ident, test.expected[idx] as string);
     });
   }
 }
@@ -639,7 +640,7 @@ function testCallExpressionParsing() {
 
   if (!(prog.statements[0] instanceof ExpressionStatement)) {
     console.error(
-      `Expected ExpressionStatement, got ${prog.statements[0].constructor.name} instead`
+      `Expected ExpressionStatement, got ${(prog.statements[0] as Statement).constructor.name} instead`
     );
     return;
   }
@@ -666,9 +667,9 @@ function testCallExpressionParsing() {
       `Expected expr.args.length == 3, got ${expr.args.length} instead.`
     );
   }
-  testLiteral(expr.args[0], 1);
-  testInfixExpression(expr.args[1], 2, "*", 3);
-  testInfixExpression(expr.args[2], 4, "+", 5);
+  testLiteral(expr.args[0] as Expression, 1);
+  testInfixExpression(expr.args[1] as Expression, 2, "*", 3);
+  testInfixExpression(expr.args[2] as Expression, 4, "+", 5);
 }
 
 function testStringLiteralExpression() {
@@ -715,9 +716,9 @@ function testParsingArrayLiterals() {
     console.error(`len(array.Elements) not 3. got=${array.elements.length}`);
     return;
   }
-  testLiteral(array.elements[0], 1);
-  testInfixExpression(array.elements[1], 2, "*", 2);
-  testInfixExpression(array.elements[2], 3, "+", 3);
+  testLiteral(array.elements[0] as Expression, 1);
+  testInfixExpression(array.elements[1] as Expression, 2, "*", 2);
+  testInfixExpression(array.elements[2] as Expression, 3, "+", 3);
 }
 
 function testParsingIndexExpressions() {
@@ -731,7 +732,7 @@ function testParsingIndexExpressions() {
   }
   if (!(program.statements[0] instanceof ExpressionStatement)) {
     console.error(
-      `exp not ExpressionStatement. got=${program.statements[0].constructor.name}`
+      `exp not ExpressionStatement. got=${(program.statements[0] as Statement).constructor.name}`
     );
     return;
   }
@@ -768,7 +769,7 @@ function testParsingHashLiteralBooleanKeys() {
   }
   if (!(program.statements[0] instanceof ExpressionStatement)) {
     console.error(
-      `exp not ExpressionStatement. got=${program.statements[0].constructor.name}`
+      `exp not ExpressionStatement. got=${(program.statements[0] as Statement).constructor.name}`
     );
     return;
   }
@@ -817,7 +818,7 @@ function testParsingHashLiteralIntegerKeys() {
   }
   if (!(program.statements[0] instanceof ExpressionStatement)) {
     console.error(
-      `exp not ExpressionStatement. got=${program.statements[0].constructor.name}`
+      `exp not ExpressionStatement. got=${(program.statements[0] as Statement).constructor.name}`
     );
     return;
   }
@@ -866,7 +867,7 @@ function testParsingHashLiteralStringKeys() {
   }
   if (!(program.statements[0] instanceof ExpressionStatement)) {
     console.error(
-      `exp not ExpressionStatement. got=${program.statements[0].constructor.name}`
+      `exp not ExpressionStatement. got=${(program.statements[0] as Statement).constructor.name}`
     );
     return;
   }
@@ -910,7 +911,7 @@ function testParsingEmptyHashLiteral() {
   }
   if (!(program.statements[0] instanceof ExpressionStatement)) {
     console.error(
-      `exp not ExpressionStatement. got=${program.statements[0].constructor.name}`
+      `exp not ExpressionStatement. got=${(program.statements[0] as Statement).constructor.name}`
     );
     return;
   }
@@ -944,7 +945,7 @@ function testParsingHashLiteralsWithExpressions() {
   }
   if (!(program.statements[0] instanceof ExpressionStatement)) {
     console.error(
-      `exp not ExpressionStatement. got=${program.statements[0].constructor.name}`
+      `exp not ExpressionStatement. got=${(program.statements[0] as Statement).constructor.name}`
     );
     return;
   }

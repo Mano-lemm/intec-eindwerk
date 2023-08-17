@@ -1,3 +1,4 @@
+import { Identifier } from "./ast";
 import {
   mk_Function,
   Integer_OBJ,
@@ -9,13 +10,13 @@ Hash,
 Hashkey,
 TRUE,
 FALSE,
-} from "./object.ts";
+} from "./object";
 import {
   testBooleanObject,
   testEval,
   testIntegerObject,
   testNullObject,
-} from "./test-helper.ts";
+} from "./test-helper";
 
 function testEvalIntegerExpression() {
   const tests: { input: string; expected: number }[] = [
@@ -246,9 +247,9 @@ function testFunctionObject() {
     );
     return;
   }
-
-  if (result.params[0].String() != "x") {
-    console.error(`parameter is not "x". got=${result.params[0].String()}`);
+  const rparam = result.params[0] as Identifier
+  if (rparam.String() != "x") {
+    console.error(`parameter is not "x". got=${rparam.String()}`);
     return;
   }
   const expectedBody = "(x + 2)";

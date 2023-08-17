@@ -1,5 +1,5 @@
-import { keywords } from "./maps.ts";
-import { TokenType, type token } from "./types.ts";
+import { keywords } from "./maps";
+import { TokenType, type token } from "./types";
 
 export class lexer {
   private input = "";

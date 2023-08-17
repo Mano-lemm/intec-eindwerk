@@ -18,16 +18,16 @@ import {
   ArrayLiteral,
   IndexExpression,
   HashLiteral,
-} from "./ast.ts";
-import { type lexer } from "./lexer.ts";
-import { precedences } from "./maps.ts";
+} from "./ast";
+import { type lexer } from "./lexer";
+import { precedences } from "./maps";
 import {
   TokenType,
   type infixParseFn,
   operationOrder,
   type prefixParseFn,
   type token,
-} from "./types.ts";
+} from "./types";
 
 export class Parser {
   private lexer: lexer;

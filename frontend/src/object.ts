@@ -1,6 +1,6 @@
-import { type BlockStatement, type Identifier } from "./ast.ts";
-import { HashPair, ObjectType } from "./types.ts";
-import { Md5 } from "npm:ts-md5@1.3.1";
+import { type BlockStatement, type Identifier } from "./ast";
+import { HashPair, ObjectType } from "./types";
+import { Md5 } from "ts-md5";
 
 export interface mk_Object {
   Type(): ObjectType;
@@ -182,7 +182,7 @@ export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
       }
       if (!(str[0] instanceof String_OBJ)) {
         return new error_OBJ(
-          `argument to \`len\` not supported, got ${str[0].Type()}`
+          `argument to \`len\` not supported, got ${(str[0] as mk_Object).Type()}`
         );
       }
       return new Integer_OBJ(str[0].val.length);
@@ -198,11 +198,11 @@ export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
       }
       if (!(args[0] instanceof Array_OBJ)) {
         return new error_OBJ(
-          `argument to \`first\` not supported, got ${args[0].Type()}`
+          `argument to \`first\` not supported, got ${(args[0] as mk_Object).Type()}`
         );
       }
       if (args[0].elements.length > 0) {
-        return args[0].elements[0];
+        return args[0].elements[0] as mk_Object;
       }
       return NULL;
     }),
@@ -217,11 +217,11 @@ export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
       }
       if (!(args[0] instanceof Array_OBJ)) {
         return new error_OBJ(
-          `argument to \`first\` not supported, got ${args[0].Type()}`
+          `argument to \`first\` not supported, got ${(args[0] as mk_Object).Type()}`
         );
       }
       if (args[0].elements.length > 0) {
-        return args[0].elements[args[0].elements.length - 1];
+        return args[0].elements[args[0].elements.length - 1] as mk_Object;
       }
       return NULL;
     }),
@@ -236,7 +236,7 @@ export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
       }
       if (!(args[0] instanceof Array_OBJ)) {
         return new error_OBJ(
-          `argument to \`rest\` not supported, got ${args[0].Type()}`
+          `argument to \`rest\` not supported, got ${(args[0] as mk_Object).Type()}`
         );
       }
       if (args[0].elements.length > 0) {
@@ -255,12 +255,12 @@ export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
       }
       if (!(args[0] instanceof Array_OBJ)) {
         return new error_OBJ(
-          `argument to \`push\` not supported, got ${args[0].Type()}`
+          `argument to \`push\` not supported, got ${(args[0] as mk_Object).Type()}`
         );
       }
       // deep copy the array
       const arr = args[0].elements.slice();
-      arr.push(args[1]);
+      arr.push(args[1] as mk_Object);
       return new Array_OBJ(arr);
     }),
   ],
