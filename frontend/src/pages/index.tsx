@@ -1,6 +1,5 @@
 import Head from "next/head";
 import Link from "next/link";
-import { monkey_eval } from "monkey_interpreter";
 
 export default function Home() {
   return (
