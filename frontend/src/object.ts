@@ -182,7 +182,9 @@ export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
       }
       if (!(str[0] instanceof String_OBJ)) {
         return new error_OBJ(
-          `argument to \`len\` not supported, got ${(str[0] as mk_Object).Type()}`
+          `argument to \`len\` not supported, got ${(
+            str[0] as mk_Object
+          ).Type()}`
         );
       }
       return new Integer_OBJ(str[0].val.length);
@@ -198,7 +200,9 @@ export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
       }
       if (!(args[0] instanceof Array_OBJ)) {
         return new error_OBJ(
-          `argument to \`first\` not supported, got ${(args[0] as mk_Object).Type()}`
+          `argument to \`first\` not supported, got ${(
+            args[0] as mk_Object
+          ).Type()}`
         );
       }
       if (args[0].elements.length > 0) {
@@ -217,7 +221,9 @@ export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
       }
       if (!(args[0] instanceof Array_OBJ)) {
         return new error_OBJ(
-          `argument to \`first\` not supported, got ${(args[0] as mk_Object).Type()}`
+          `argument to \`first\` not supported, got ${(
+            args[0] as mk_Object
+          ).Type()}`
         );
       }
       if (args[0].elements.length > 0) {
@@ -236,7 +242,9 @@ export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
       }
       if (!(args[0] instanceof Array_OBJ)) {
         return new error_OBJ(
-          `argument to \`rest\` not supported, got ${(args[0] as mk_Object).Type()}`
+          `argument to \`rest\` not supported, got ${(
+            args[0] as mk_Object
+          ).Type()}`
         );
       }
       if (args[0].elements.length > 0) {
@@ -255,7 +263,9 @@ export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
       }
       if (!(args[0] instanceof Array_OBJ)) {
         return new error_OBJ(
-          `argument to \`push\` not supported, got ${(args[0] as mk_Object).Type()}`
+          `argument to \`push\` not supported, got ${(
+            args[0] as mk_Object
+          ).Type()}`
         );
       }
       // deep copy the array
@@ -264,10 +274,13 @@ export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
       return new Array_OBJ(arr);
     }),
   ],
-  ["puts", new Builtin((args: mk_Object[]) => {
-    for (const arg of args) {
-      console.log(arg.Inspect())
-    }
-    return NULL
-  })]
+  [
+    "puts",
+    new Builtin((args: mk_Object[]) => {
+      for (const arg of args) {
+        console.log(arg.Inspect());
+      }
+      return NULL;
+    }),
+  ],
 ]);

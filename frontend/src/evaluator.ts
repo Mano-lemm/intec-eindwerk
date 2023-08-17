@@ -17,7 +17,7 @@ import {
   type Expression,
   ArrayLiteral,
   IndexExpression,
-HashLiteral,
+  HashLiteral,
 } from "./ast";
 import {
   FALSE,
@@ -33,8 +33,8 @@ import {
   builtins,
   Builtin,
   Array_OBJ,
-Hash,
-Hashable,
+  Hash,
+  Hashable,
 } from "./object";
 import { ObjectType } from "./types";
 
@@ -129,7 +129,7 @@ export function evaluate(node: Node, env: Environment): mk_Object {
     }
     return evalIndexExpression(left, idx);
   } else if (node instanceof HashLiteral) {
-    return evalHashLiteral(node, env)
+    return evalHashLiteral(node, env);
   }
   return new error_OBJ(`unhandled ast node of type ${node.constructor.name}`);
 }
@@ -313,7 +313,7 @@ function evalIndexExpression(left: mk_Object, index: mk_Object): mk_Object {
   if (left.Type() == ObjectType.ARRAY && index.Type() == ObjectType.INTEGER) {
     return evalArrayIndexExpression(left as Array_OBJ, index as Integer_OBJ);
   } else if (left.Type() == ObjectType.HASH_OBJ) {
-    return evalHashIndexExpression(left as Hash, index)
+    return evalHashIndexExpression(left as Hash, index);
   }
   return new error_OBJ(`index operator not supported: ${left.Type()}`);
 }
@@ -325,41 +325,41 @@ function evalArrayIndexExpression(
   if (index.val < 0 || index.val > left.elements.length - 1) {
     return NULL;
   }
-  const r = left.elements[index.val]
+  const r = left.elements[index.val];
   return r == undefined ? NULL : r;
 }
 
-function evalHashIndexExpression(hash: Hash, index: mk_Object) : mk_Object {
-  if((<mk_Object & Hashable>index).HashKey != undefined){
-    const r = hash.get(<mk_Object & Hashable>index)
-    if(r == undefined){
-      return NULL
+function evalHashIndexExpression(hash: Hash, index: mk_Object): mk_Object {
+  if ((<mk_Object & Hashable>index).HashKey != undefined) {
+    const r = hash.get(<mk_Object & Hashable>index);
+    if (r == undefined) {
+      return NULL;
     }
-    return r.val
+    return r.val;
   }
-  return new error_OBJ(`unusable as hash key: ${index.Type()}`)
+  return new error_OBJ(`unusable as hash key: ${index.Type()}`);
 }
 
-function evalHashLiteral(node: HashLiteral, env: Environment) : mk_Object {
-  let pairs = new Hash()
+function evalHashLiteral(node: HashLiteral, env: Environment): mk_Object {
+  let pairs = new Hash();
 
-  for(const kv of node.pairs){
-    let key = evaluate(kv[0], env)
-    if(isError(key)){
-      return key
+  for (const kv of node.pairs) {
+    let key = evaluate(kv[0], env);
+    if (isError(key)) {
+      return key;
     }
     // fucked up interface impl check
-    if((<Hashable & mk_Object>key).HashKey == undefined){
-      return new error_OBJ(`unusable as hash key: ${key.Type()}`)
+    if ((<Hashable & mk_Object>key).HashKey == undefined) {
+      return new error_OBJ(`unusable as hash key: ${key.Type()}`);
     }
 
-    const value = evaluate(kv[1], env)
-    if(isError(value)){
-      return value
+    const value = evaluate(kv[1], env);
+    if (isError(value)) {
+      return value;
     }
-    pairs.put((<Hashable & mk_Object>key), value)
+    pairs.put(<Hashable & mk_Object>key, value);
   }
-  return pairs
+  return pairs;
 }
 
 function applyFunction(func: mk_Object, args: mk_Object[]): mk_Object {
@@ -376,8 +376,8 @@ function applyFunction(func: mk_Object, args: mk_Object[]): mk_Object {
 function extendFunctionEnv(func: mk_Function, args: mk_Object[]) {
   const fenv = new Environment(new Map<string, mk_Object>(), func.env);
   for (const [idx, obj] of func.params.entries()) {
-    const arg = args[idx]
-    if(arg != undefined){
+    const arg = args[idx];
+    if (arg != undefined) {
       fenv.set(obj.val, arg);
     }
   }

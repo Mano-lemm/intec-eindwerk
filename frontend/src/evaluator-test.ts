@@ -6,10 +6,10 @@ import {
   String_OBJ,
   error_OBJ,
   type mk_Object,
-Hash,
-Hashkey,
-TRUE,
-FALSE,
+  Hash,
+  Hashkey,
+  TRUE,
+  FALSE,
 } from "./object";
 import {
   testBooleanObject,
@@ -193,7 +193,10 @@ function testErrorHandling() {
       input: `"Hello" - "World"`,
       expectedMessage: "unknown operator: STRING - STRING",
     },
-    { input: `{"name": "Monkey"}[fn(x) { x }];`, expectedMessage: "unusable as hash key: FUNCTION" },
+    {
+      input: `{"name": "Monkey"}[fn(x) { x }];`,
+      expectedMessage: "unusable as hash key: FUNCTION",
+    },
   ];
 
   for (const test of tests) {
@@ -247,7 +250,7 @@ function testFunctionObject() {
     );
     return;
   }
-  const rparam = result.params[0] as Identifier
+  const rparam = result.params[0] as Identifier;
   if (rparam.String() != "x") {
     console.error(`parameter is not "x". got=${rparam.String()}`);
     return;
@@ -388,14 +391,14 @@ function testHashLiterals() {
   4: 4,
   true: 5,
   false: 6
-  }`
+  }`;
 
-  const result = testEval(input)
-  if(!(result instanceof Hash)){
-    console.error(`Eval didn't return hash. got=${result.Type()}`)
-    return
+  const result = testEval(input);
+  if (!(result instanceof Hash)) {
+    console.error(`Eval didn't return hash. got=${result.Type()}`);
+    return;
   }
-  
+
   const expected = new Map<string, number>([
     [JSON.stringify(new String_OBJ("one").HashKey()), 1],
     [JSON.stringify(new String_OBJ("two").HashKey()), 2],
@@ -403,25 +406,25 @@ function testHashLiterals() {
     [JSON.stringify(new Integer_OBJ(4).HashKey()), 4],
     [JSON.stringify(TRUE.HashKey()), 5],
     [JSON.stringify(FALSE.HashKey()), 6],
-  ])
+  ]);
 
-  if(result.pairMap.size != expected.size){
-    console.error(`Hash has wrong num of pairs. got=${result.pairMap.size}`)
-    return
+  if (result.pairMap.size != expected.size) {
+    console.error(`Hash has wrong num of pairs. got=${result.pairMap.size}`);
+    return;
   }
 
   for (const [key, hpair] of result.pairMap) {
-    const exp = expected.get(key)
-    if(exp == undefined){
-      console.error(`no pair for given key in Pairs`)
-      continue
+    const exp = expected.get(key);
+    if (exp == undefined) {
+      console.error(`no pair for given key in Pairs`);
+      continue;
     }
-    testIntegerObject(hpair.val, exp)
+    testIntegerObject(hpair.val, exp);
   }
 }
 
 function testHashIndexExpressions() {
-  const tests: {input: string, expected: number | null}[] = [
+  const tests: { input: string; expected: number | null }[] = [
     { input: `{"foo": 5}["foo"]`, expected: 5 },
     { input: `{"foo": 5}["bar"]`, expected: null },
     { input: `let key = "foo"; {"foo": 5}[key]`, expected: 5 },
@@ -429,14 +432,14 @@ function testHashIndexExpressions() {
     { input: `{5: 5}[5]`, expected: 5 },
     { input: `{true: 5}[true]`, expected: 5 },
     { input: `{false: 5}[false]`, expected: 5 },
-  ]
+  ];
 
   for (const test of tests) {
-    const result = testEval(test.input)
-    if(typeof test.expected == "number"){
-      testIntegerObject(result, test.expected)
+    const result = testEval(test.input);
+    if (typeof test.expected == "number") {
+      testIntegerObject(result, test.expected);
     } else {
-      testNullObject(result)
+      testNullObject(result);
     }
   }
 }
