@@ -312,6 +312,8 @@ function evalExpressions(exps: Expression[], env: Environment): mk_Object[] {
 function evalIndexExpression(left: mk_Object, index: mk_Object): mk_Object {
   if (left.Type() == ObjectType.ARRAY && index.Type() == ObjectType.INTEGER) {
     return evalArrayIndexExpression(left as Array_OBJ, index as Integer_OBJ);
+  } else if (left.Type() == ObjectType.HASH_OBJ) {
+    return evalHashIndexExpression(left as Hash, index)
   }
   return new error_OBJ(`index operator not supported: ${left.Type()}`);
 }
@@ -324,6 +326,17 @@ function evalArrayIndexExpression(
     return NULL;
   }
   return left.elements[index.val];
+}
+
+function evalHashIndexExpression(hash: Hash, index: mk_Object) : mk_Object {
+  if((<mk_Object & Hashable>index).HashKey != undefined){
+    const r = hash.get(<mk_Object & Hashable>index)
+    if(r == undefined){
+      return NULL
+    }
+    return r.val
+  }
+  return new error_OBJ(`unusable as hash key: ${index.Type()}`)
 }
 
 function evalHashLiteral(node: HashLiteral, env: Environment) : mk_Object {

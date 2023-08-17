@@ -192,6 +192,7 @@ function testErrorHandling() {
       input: `"Hello" - "World"`,
       expectedMessage: "unknown operator: STRING - STRING",
     },
+    { input: `{"name": "Monkey"}[fn(x) { x }];`, expectedMessage: "unusable as hash key: FUNCTION" },
   ];
 
   for (const test of tests) {
@@ -418,6 +419,27 @@ function testHashLiterals() {
   }
 }
 
+function testHashIndexExpressions() {
+  const tests: {input: string, expected: number | null}[] = [
+    { input: `{"foo": 5}["foo"]`, expected: 5 },
+    { input: `{"foo": 5}["bar"]`, expected: null },
+    { input: `let key = "foo"; {"foo": 5}[key]`, expected: 5 },
+    { input: `{}["foo"]`, expected: null },
+    { input: `{5: 5}[5]`, expected: 5 },
+    { input: `{true: 5}[true]`, expected: 5 },
+    { input: `{false: 5}[false]`, expected: 5 },
+  ]
+
+  for (const test of tests) {
+    const result = testEval(test.input)
+    if(typeof test.expected == "number"){
+      testIntegerObject(result, test.expected)
+    } else {
+      testNullObject(result)
+    }
+  }
+}
+
 testLetStatements();
 testEvalIntegerExpression();
 testEvalBooleanExpression();
@@ -433,3 +455,4 @@ testStringConcatenation();
 testBuiltinFunctions();
 testIndexExpression();
 testHashLiterals();
+testHashIndexExpressions();

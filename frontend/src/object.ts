@@ -264,4 +264,10 @@ export const builtins: Map<string, Builtin> = new Map<string, Builtin>([
       return new Array_OBJ(arr);
     }),
   ],
+  ["puts", new Builtin((args: mk_Object[]) => {
+    for (const arg of args) {
+      console.log(arg.Inspect())
+    }
+    return NULL
+  })]
 ]);
