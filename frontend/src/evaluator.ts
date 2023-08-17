@@ -17,6 +17,7 @@ import {
   type Expression,
   ArrayLiteral,
   IndexExpression,
+HashLiteral,
 } from "./ast.ts";
 import {
   FALSE,
@@ -32,6 +33,8 @@ import {
   builtins,
   Builtin,
   Array_OBJ,
+Hash,
+Hashable,
 } from "./object.ts";
 import { ObjectType } from "./types.ts";
 
@@ -125,6 +128,8 @@ export function evaluate(node: Node, env: Environment): mk_Object {
       return idx;
     }
     return evalIndexExpression(left, idx);
+  } else if (node instanceof HashLiteral) {
+    return evalHashLiteral(node, env)
   }
   return new error_OBJ(`unhandled ast node of type ${node.constructor.name}`);
 }
@@ -319,6 +324,28 @@ function evalArrayIndexExpression(
     return NULL;
   }
   return left.elements[index.val];
+}
+
+function evalHashLiteral(node: HashLiteral, env: Environment) : mk_Object {
+  let pairs = new Hash()
+
+  for(const kv of node.pairs){
+    let key = evaluate(kv[0], env)
+    if(isError(key)){
+      return key
+    }
+    // fucked up interface impl check
+    if((<Hashable & mk_Object>key).HashKey == undefined){
+      return new error_OBJ(`unusable as hash key: ${key.Type()}`)
+    }
+
+    const value = evaluate(kv[1], env)
+    if(isError(value)){
+      return value
+    }
+    pairs.put((<Hashable & mk_Object>key), value)
+  }
+  return pairs
 }
 
 function applyFunction(func: mk_Object, args: mk_Object[]): mk_Object {

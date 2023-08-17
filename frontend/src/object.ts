@@ -1,13 +1,25 @@
 import { type BlockStatement, type Identifier } from "./ast.ts";
-import { ObjectType } from "./types.ts";
+import { HashPair, ObjectType } from "./types.ts";
+import { Md5 } from "npm:ts-md5@1.3.1";
 
 export interface mk_Object {
   Type(): ObjectType;
   Inspect(): string;
 }
 
-export class Integer_OBJ implements mk_Object {
+export interface Hashable {
+  HashKey(): Hashkey;
+}
+
+export class Hashkey {
+  constructor(public type: ObjectType, public value: number) {}
+}
+
+export class Integer_OBJ implements mk_Object, Hashable {
   constructor(public val: number) {}
+  HashKey(): Hashkey {
+    return new Hashkey(this.Type(), this.val);
+  }
   Type(): ObjectType {
     return ObjectType.INTEGER;
   }
@@ -16,8 +28,14 @@ export class Integer_OBJ implements mk_Object {
   }
 }
 
-export class Boolean_OBJ implements mk_Object {
+export class Boolean_OBJ implements mk_Object, Hashable {
   constructor(public val: boolean) {}
+  HashKey(): Hashkey {
+    if (this == TRUE) {
+      return new Hashkey(this.Type(), 1);
+    }
+    return new Hashkey(this.Type(), 0);
+  }
   Type(): ObjectType {
     return ObjectType.BOOLEAN;
   }
@@ -26,8 +44,11 @@ export class Boolean_OBJ implements mk_Object {
   }
 }
 
-export class String_OBJ implements mk_Object {
+export class String_OBJ implements mk_Object, Hashable {
   constructor(public val: string) {}
+  HashKey(): Hashkey {
+    return new Hashkey(this.Type(), parseInt(Md5.hashStr(this.val), 16));
+  }
   Type(): ObjectType {
     return ObjectType.STRING;
   }
@@ -117,6 +138,33 @@ export class Array_OBJ implements mk_Object {
   }
   Inspect(): string {
     return `[${this.elements.map((e) => e.Inspect()).join(", ")}]`;
+  }
+}
+
+export class Hash implements mk_Object {
+  public pairMap: Map<string, HashPair>;
+  constructor() {
+    this.pairMap = new Map();
+  }
+  put(key: mk_Object & Hashable, val: mk_Object) {
+    this.pairMap.set(JSON.stringify(key.HashKey()), { key: key, val: val });
+  }
+  get(key: Hashable | Hashkey): HashPair | undefined {
+    if (key instanceof Hashkey) {
+      if (this.pairMap.has(JSON.stringify(key))) {
+        return this.pairMap.get(JSON.stringify(key));
+      }
+      return undefined;
+    }
+    return this.get(key.HashKey());
+  }
+  Type(): ObjectType {
+    return ObjectType.HASH_OBJ;
+  }
+  Inspect(): string {
+    return `{${Array.from(this.pairMap)
+      .map((e) => `${e[1].key.Inspect()}: ${e[1].val.Inspect()}`)
+      .join(", ")}}`;
   }
 }
 

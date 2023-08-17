@@ -5,6 +5,10 @@ import {
   String_OBJ,
   error_OBJ,
   type mk_Object,
+Hash,
+Hashkey,
+TRUE,
+FALSE,
 } from "./object.ts";
 import {
   testBooleanObject,
@@ -373,6 +377,47 @@ function testIndexExpression() {
   }
 }
 
+function testHashLiterals() {
+  const input = `let two = "two";
+  {
+  "one": 10 - 9,
+  two: 1 + 1,
+  "thr" + "ee": 6 / 2,
+  4: 4,
+  true: 5,
+  false: 6
+  }`
+
+  const result = testEval(input)
+  if(!(result instanceof Hash)){
+    console.error(`Eval didn't return hash. got=${result.Type()}`)
+    return
+  }
+  
+  const expected = new Map<string, number>([
+    [JSON.stringify(new String_OBJ("one").HashKey()), 1],
+    [JSON.stringify(new String_OBJ("two").HashKey()), 2],
+    [JSON.stringify(new String_OBJ("three").HashKey()), 3],
+    [JSON.stringify(new Integer_OBJ(4).HashKey()), 4],
+    [JSON.stringify(TRUE.HashKey()), 5],
+    [JSON.stringify(FALSE.HashKey()), 6],
+  ])
+
+  if(result.pairMap.size != expected.size){
+    console.error(`Hash has wrong num of pairs. got=${result.pairMap.size}`)
+    return
+  }
+
+  for (const [key, hpair] of result.pairMap) {
+    const exp = expected.get(key)
+    if(exp == undefined){
+      console.error(`no pair for given key in Pairs`)
+      continue
+    }
+    testIntegerObject(hpair.val, exp)
+  }
+}
+
 testLetStatements();
 testEvalIntegerExpression();
 testEvalBooleanExpression();
@@ -387,3 +432,4 @@ testStringLiteral();
 testStringConcatenation();
 testBuiltinFunctions();
 testIndexExpression();
+testHashLiterals();

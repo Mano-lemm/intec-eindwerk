@@ -1,4 +1,5 @@
 import { type Expression } from "./ast.ts";
+import { mk_Object } from "./object.ts";
 
 export type prefixParseFn = () => Expression;
 export type infixParseFn = (expr: Expression) => Expression;
@@ -61,6 +62,8 @@ export enum operationOrder {
   INDEX = 7,
 }
 
+export type HashPair = { key: mk_Object; val: mk_Object };
+
 export enum ObjectType {
   INTEGER = "INTEGER",
   BOOLEAN = "BOOLEAN",
@@ -71,4 +74,5 @@ export enum ObjectType {
   FUNCTION = "FUNCTION",
   BUILTIN = "BUILTIN",
   ARRAY = "ARRAY",
+  HASH_OBJ = "HASH",
 }
