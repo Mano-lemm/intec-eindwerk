@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { useState } from "react";
+import Head from "next/head";
 
 function projectComp(user: string, project: string) {
   return <p>{`${user} : ${project}`}</p>;
@@ -19,10 +20,15 @@ export default function UserPage() {
 
   return (
     <>
-      <div className="h-screen bg-background text-white">
+      <Head>
+        <title>Monkey Interpreter</title>
+        <meta name="description" content="online interpreter for monkey code" />
+        <link rel="icon" href="/out.ico" />
+      </Head>
+      <main className="h-screen bg-background text-white">
         <div
           id="header"
-          className="flex w-screen items-center bg-middleground text-center text-xl "
+          className="flex w-screen items-center bg-middleground text-center text-xl"
         >
           <div className="flex items-center gap-3 p-3">
             <Image src="/logo.png" alt="funny monkey" width={64} height={64} />
@@ -76,7 +82,7 @@ export default function UserPage() {
             )}
           </div>
         </div>
-      </div>
+      </main>
     </>
   );
 }

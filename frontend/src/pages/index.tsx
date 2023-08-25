@@ -2,6 +2,7 @@ import { faFileLines, faUser } from "@fortawesome/free-solid-svg-icons";
 import { faNpm } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Head from "next/head";
+import Link from "next/link";
 
 /* eslint-disable */
 // this is a Typescript helper type
@@ -22,12 +23,12 @@ export default function Home() {
       <Head>
         <title>Monkey Interpreter</title>
         <meta name="description" content="online interpreter for monkey code" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/out.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-background">
-        {/* should be moved into a component */}
+        {/* should be moved into a function */}
         <div className="flex gap-5 rounded-[45px] bg-middleground p-5 text-white shadow-big_outer">
-          {/* should be moved into a component */}
+          {/* should be moved into a function */}
           <div className="flex flex-col gap-10 rounded-3xl bg-background px-10 py-8 shadow-big_inner">
             <button className="flex items-center gap-6 py-5">
               <FontAwesomeIcon className="w-6" icon={faFileLines} />
@@ -45,7 +46,7 @@ export default function Home() {
             </button>
             <button className="flex items-center gap-6 py-5">
               <FontAwesomeIcon className="w-10" icon={faNpm} />
-              <p>Npm package</p>
+              <Link href={`https://www.npmjs.com/package/monkey_interpreter`}>Npm package</Link>
             </button>
           </div>
         </div>
