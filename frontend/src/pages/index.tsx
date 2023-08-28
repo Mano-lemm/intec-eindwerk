@@ -3,13 +3,14 @@ import { faNpm } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 /* eslint-disable */
 // this is a Typescript helper type
 // that displays all the keys and
 // the types of those keys of any
 // opaque type
-type Pretty<T> = {
+export type Pretty<T> = {
   [K in keyof T]: T[K];
 } & {};
 /* eslint-enable */
@@ -18,6 +19,7 @@ type Pretty<T> = {
 // const y: Pretty<IconName> = "file"
 
 export default function Home() {
+  const router = useRouter();
   return (
     <>
       <Head>
@@ -30,24 +32,29 @@ export default function Home() {
         <div className="flex gap-5 rounded-[45px] bg-middleground p-5 text-white shadow-big_outer">
           {/* should be moved into a function */}
           <div className="flex flex-col gap-10 rounded-3xl bg-background px-10 py-8 shadow-big_inner">
-            <button className="flex items-center gap-6 py-5">
+            <Link className="flex items-center gap-6 py-5" href={"https://regal-internet-brothers.github.io/monkey/docs/Programming_Language%20reference.html"}>
               <FontAwesomeIcon className="w-6" icon={faFileLines} />
               <p>Documentation</p>
-            </button>
-            <button className="flex items-center gap-6 py-5">
+            </Link>
+            <button
+              className="flex items-center gap-6 py-5"
+              onClick={() => router.push("/signin")}
+            >
               <FontAwesomeIcon className="w-6" icon={faUser} />
               <p>Log in/Register</p>
             </button>
           </div>
           <div className="flex flex-col gap-10 rounded-3xl bg-background px-10 py-8 shadow-big_inner">
-            <button className="flex items-center gap-6 py-5">
+            <Link className="flex items-center gap-6 py-5" href={"https://interpreterbook.com/"}>
               <FontAwesomeIcon className="w-6" icon={faFileLines} />
               <p>Book sources</p>
-            </button>
-            <button className="flex items-center gap-6 py-5">
+            </Link>
+            <Link className="flex items-center gap-6 py-5" href={`https://www.npmjs.com/package/monkey_interpreter`}>
               <FontAwesomeIcon className="w-10" icon={faNpm} />
-              <Link href={`https://www.npmjs.com/package/monkey_interpreter`}>Npm package</Link>
-            </button>
+              <p>
+                Npm package
+              </p>
+            </Link>
           </div>
         </div>
       </main>
