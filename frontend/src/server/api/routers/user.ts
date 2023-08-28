@@ -8,9 +8,9 @@ export const userRouter = createTRPCRouter({
       return { id: 1, name: "Mano" };
     }),
   register: publicProcedure
-    .input(z.object({ uname: z.string(), pwd: z.string().min(6)}))
+    .input(z.object({ uname: z.string(), pwd: z.string().min(6) }))
     .query(async ({ input }) => {
-        console.log(JSON.stringify(input))
-        return 1
+      console.log(JSON.stringify(input));
+      return 1;
     }),
 });

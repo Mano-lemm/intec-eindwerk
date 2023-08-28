@@ -10,22 +10,16 @@ export default function LoginOrRegister() {
   const router = useRouter();
   const uname = useRef<HTMLTextAreaElement>(null);
   const pwd = useRef<HTMLTextAreaElement>(null);
-  const query: { uname: string, pwd: string } = { uname: "", pwd: "" };
+  const query: { uname: string; pwd: string } = { uname: "", pwd: "" };
   // pretty stupid
-  const { refetch: loginRefetch } = api.user.login.useQuery(
-    query,
-    {
-      retry: false,
-      enabled: false,
-    },
-  );
-  const { refetch: registerRefetch } = api.user.register.useQuery(
-    query,
-    {
-      retry: false,
-      enabled: false,
-    },
-  );
+  const { refetch: loginRefetch } = api.user.login.useQuery(query, {
+    retry: false,
+    enabled: false,
+  });
+  const { refetch: registerRefetch } = api.user.register.useQuery(query, {
+    retry: false,
+    enabled: false,
+  });
   const user = useUserContext();
   if (user == undefined) {
     return <p>Critical failure</p>;
@@ -33,13 +27,13 @@ export default function LoginOrRegister() {
 
   // TODO: refactor into generic refetch
   const login = () => {
-    const name = uname.current?.value
-    const pass = pwd.current?.value
-    if(name != undefined){
-      query.uname = name
+    const name = uname.current?.value;
+    const pass = pwd.current?.value;
+    if (name != undefined) {
+      query.uname = name;
     }
-    if(pass != undefined){
-      query.pwd = pass
+    if (pass != undefined) {
+      query.pwd = pass;
     }
     loginRefetch().then((val) => {
       if (val.isError) {
@@ -50,19 +44,19 @@ export default function LoginOrRegister() {
         return;
       }
       user.setUserId(tempUser.id);
-      user.setUserName(tempUser.name)
-      router.push('/user');
+      user.setUserName(tempUser.name);
+      router.push("/user");
     });
   };
 
   const register = () => {
-    const name = uname.current?.value
-    const pass = pwd.current?.value
-    if(name != undefined){
-      query.uname = name
+    const name = uname.current?.value;
+    const pass = pwd.current?.value;
+    if (name != undefined) {
+      query.uname = name;
     }
-    if(pass != undefined){
-      query.pwd = pass
+    if (pass != undefined) {
+      query.pwd = pass;
     }
     registerRefetch().then((val) => {
       if (val.isError) {
@@ -93,7 +87,10 @@ export default function LoginOrRegister() {
             >
               Log in
             </button>
-            <button className="rounded-[25px] bg-[#525252] px-[106px] py-9" onClick={register}>
+            <button
+              className="rounded-[25px] bg-[#525252] px-[106px] py-9"
+              onClick={register}
+            >
               Register
             </button>
           </div>

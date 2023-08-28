@@ -11,9 +11,16 @@ const userContext = React.createContext<userValue | undefined>(undefined);
 
 function UserWrapper(props: React.PropsWithChildren) {
   const [userID, setUserID] = React.useState<number | undefined>(undefined);
-  const [userName, setUserName] = React.useState<string | undefined>(undefined)
+  const [userName, setUserName] = React.useState<string | undefined>(undefined);
   return (
-    <userContext.Provider value={{ userId: userID, setUserId: setUserID, userName: userName, setUserName: setUserName }}>
+    <userContext.Provider
+      value={{
+        userId: userID,
+        setUserId: setUserID,
+        userName: userName,
+        setUserName: setUserName,
+      }}
+    >
       {props.children}
     </userContext.Provider>
   );

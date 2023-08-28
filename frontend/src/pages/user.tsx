@@ -1,7 +1,9 @@
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Head from "next/head";
+import { api } from "~/utils/api";
+import { useUserContext } from "~/context/userState";
 
 function projectComp(user: string, project: string) {
   return <p>{`${user} : ${project}`}</p>;
@@ -11,13 +13,22 @@ function replComp() {
   return <p>REPL</p>;
 }
 
+// TODO: add middleware to reroute on not-set user
 export default function UserPage() {
   const router = useRouter();
-  const fakeProjectTitles = ["sus", "amongus", "imposter"];
-
+  const user = useUserContext();
+  const projects = api.code.getAllProjectTitlesAndIds.useQuery({
+    UID: user?.userId == undefined ? -1 : user.userId,
+  });
   const [chosen, setChosen] = useState<"project" | "REPL" | "empty">("empty");
   const [project, setProject] = useState<string | undefined>(undefined);
 
+  // page init
+  useEffect(() => {
+    if(user == undefined || user.userId == undefined || user.userName == undefined){
+        router.replace("/")
+    }
+  }, []);
   return (
     <>
       <Head>
@@ -55,16 +66,16 @@ export default function UserPage() {
               New REPL
             </button>
             <div className="flex flex-col gap-4 py-4 text-center">
-              {fakeProjectTitles.map((e) => {
+              {projects.data?.map((e) => {
                 return (
                   <button
                     onClick={() => {
-                      setProject(e);
+                      setProject(e.title);
                       setChosen("project");
                     }}
-                    key={e}
+                    key={e.id}
                   >
-                    {e}
+                    {e.title}
                   </button>
                 );
               })}

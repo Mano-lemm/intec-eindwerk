@@ -32,7 +32,12 @@ export default function Home() {
         <div className="flex gap-5 rounded-[45px] bg-middleground p-5 text-white shadow-big_outer">
           {/* should be moved into a function */}
           <div className="flex flex-col gap-10 rounded-3xl bg-background px-10 py-8 shadow-big_inner">
-            <Link className="flex items-center gap-6 py-5" href={"https://regal-internet-brothers.github.io/monkey/docs/Programming_Language%20reference.html"}>
+            <Link
+              className="flex items-center gap-6 py-5"
+              href={
+                "https://regal-internet-brothers.github.io/monkey/docs/Programming_Language%20reference.html"
+              }
+            >
               <FontAwesomeIcon className="w-6" icon={faFileLines} />
               <p>Documentation</p>
             </Link>
@@ -45,15 +50,19 @@ export default function Home() {
             </button>
           </div>
           <div className="flex flex-col gap-10 rounded-3xl bg-background px-10 py-8 shadow-big_inner">
-            <Link className="flex items-center gap-6 py-5" href={"https://interpreterbook.com/"}>
+            <Link
+              className="flex items-center gap-6 py-5"
+              href={"https://interpreterbook.com/"}
+            >
               <FontAwesomeIcon className="w-6" icon={faFileLines} />
               <p>Book sources</p>
             </Link>
-            <Link className="flex items-center gap-6 py-5" href={`https://www.npmjs.com/package/monkey_interpreter`}>
+            <Link
+              className="flex items-center gap-6 py-5"
+              href={`https://www.npmjs.com/package/monkey_interpreter`}
+            >
               <FontAwesomeIcon className="w-10" icon={faNpm} />
-              <p>
-                Npm package
-              </p>
+              <p>Npm package</p>
             </Link>
           </div>
         </div>
