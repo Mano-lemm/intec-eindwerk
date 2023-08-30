@@ -24,6 +24,9 @@ export default function UserPage() {
   const [project, setProject] = useState<string | undefined>(undefined);
 
   // page init
+  // the slowest redirect ever
+  // also doesnt work without js
+  // dont do this
   useEffect(() => {
     if(user == undefined || user.userId == undefined || user.userName == undefined){
         router.replace("/")
