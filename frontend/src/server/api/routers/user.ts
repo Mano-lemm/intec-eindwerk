@@ -5,24 +5,34 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 export const userRouter = createTRPCRouter({
   login: publicProcedure
     .input(z.object({ uname: z.string(), pwd: z.string().min(6) }))
+    .output(z.object({id: z.number(), name: z.string()}))
     .query(async ({ input }) => {
-      const url_base = process.env.SERVER_BASE_URL
-      if(url_base == undefined){
-        console.log(url_base)
+      const response = await fetch(`${process.env.SERVER_BASE_URL}/user/login?name=${input.uname}&pwd=${input.pwd}`)
+      if(response.status != 200){
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "fetch url is not defined"
+          message: "bad internal response"
         })
       }
-      const response = await fetch(`${url_base}/login?name=${input.uname}&pwd=${input.pwd}`)
-      const r_json = response.json
-      console.log(JSON.stringify(r_json))
-      return z.object({id: z.number(), name: z.string()}).parse(r_json)
+      return response.json()
     }),
   register: publicProcedure
     .input(z.object({ uname: z.string(), pwd: z.string().min(6) }))
+    .output(z.object({ id: z.number() }))
     .query(async ({ input }) => {
-      console.log(JSON.stringify(input));
-      return 1;
+      const response = await fetch(`${process.env.SERVER_BASE_URL}/user/register`, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({name: input.uname, pwd: input.pwd})
+      })
+      if(response.status != 200){
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "bad internal response"
+        })
+      }
+      return response.json();
     }),
 });

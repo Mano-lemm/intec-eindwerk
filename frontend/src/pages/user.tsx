@@ -90,7 +90,7 @@ export default function UserPage() {
             ) : chosen == "empty" ? (
               <></>
             ) : chosen == "project" ? (
-              projectComp(String(router.query.user), String(project))
+              projectComp(String(user?.userName), String(project))
             ) : (
               <p>type Error</p>
             )}

@@ -66,8 +66,8 @@ export default function LoginOrRegister() {
       if (tempUID == undefined) {
         return;
       }
-      user.setUserId(tempUID);
-      router.push(`/user/${user.userId}`);
+      user.setUserId(tempUID.id);
+      router.push(`/user`);
     });
   };
   return (
