@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import { api } from "~/utils/api";
 import { useUserContext } from "~/context/userState";
@@ -17,9 +17,24 @@ function replComp() {
 export default function UserPage() {
   const router = useRouter();
   const user = useUserContext();
-  const projects = api.code.getAllProjectTitlesAndIds.useQuery({
-    UID: user?.userId == undefined ? -1 : user.userId,
-  });
+  const projects = api.code.getAllProjectTitlesAndIds.useQuery(
+    {
+      UID: user?.userId == undefined ? -1 : user.userId,
+    },
+    {
+      retry: 3,
+    },
+  );
+  let title = useRef<HTMLInputElement>(null);
+  const newProject = api.code.newProject.useQuery(
+    {
+      title: title.current?.value ? title.current.value : "",
+    },
+    {
+      enabled: false,
+      retry: 3,
+    },
+  );
   const [chosen, setChosen] = useState<"project" | "REPL" | "empty">("empty");
   const [project, setProject] = useState<string | undefined>(undefined);
 
@@ -28,8 +43,12 @@ export default function UserPage() {
   // also doesnt work without js
   // dont do this
   useEffect(() => {
-    if(user == undefined || user.userId == undefined || user.userName == undefined){
-        router.replace("/")
+    if (
+      user == undefined ||
+      user.userId == undefined ||
+      user.userName == undefined
+    ) {
+      router.replace("/");
     }
   }, []);
   return (
@@ -53,7 +72,16 @@ export default function UserPage() {
             <button className="h-16">Bug report</button>
           </div>
           <div className="flex w-2/5 flex-row-reverse">
-            <button className="h-16 w-80 text-center">Log out</button>
+            <button
+              className="h-16 w-80 text-center"
+              onClick={() => {
+                user?.setUserId(undefined);
+                user?.setUserName(undefined);
+                router.back();
+              }}
+            >
+              Log out
+            </button>
           </div>
         </div>
         <div className="flex h-full">
@@ -69,19 +97,39 @@ export default function UserPage() {
               New REPL
             </button>
             <div className="flex flex-col gap-4 py-4 text-center">
-              {projects.data?.map((e) => {
+              {projects.data?.codeInfo.map((e) => {
                 return (
                   <button
                     onClick={() => {
-                      setProject(e.title);
+                      setProject(e.name);
                       setChosen("project");
                     }}
                     key={e.id}
                   >
-                    {e.title}
+                    {e.name}
                   </button>
                 );
               })}
+              <div className="flex flex-col gap-4 py-4 text-center">
+                <button
+                  onClick={async () => {
+                    try {
+                      await newProject.refetch();
+                      await projects.refetch();
+                    } catch (e) {}
+                  }}
+                >
+                  New Project
+                </button>
+                <div className="flex gap-2">
+                  <label>Title</label>
+                  <input
+                    id="new_proj_title"
+                    ref={title}
+                    className="w-48 text-black"
+                  />
+                </div>
+              </div>
             </div>
           </div>
           <div id="content" className="h-full w-full">

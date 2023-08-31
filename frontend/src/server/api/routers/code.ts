@@ -4,16 +4,42 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 export const codeRouter = createTRPCRouter({
   getAllProjectTitlesAndIds: publicProcedure
     .input(z.object({ UID: z.number() }))
+    .output(
+      z.object({
+        codeInfo: z.array(z.object({ id: z.number(), name: z.string() })),
+      }),
+    )
     .query(async ({ input }) => {
-      return [
-        { id: 0, title: "sus" },
-        { id: 1, title: "amongus" },
-        { id: 2, title: "imposter" },
-      ];
+      const response = await fetch(
+        `${process.env.SERVER_BASE_URL}/user/getProjects?id=${input.UID}`,
+      );
+      return response.json();
     }),
-  new: publicProcedure
-    .input(z.object({ UID: z.number(), title: z.string().min(4).max(18) }))
+  newProject: publicProcedure
+    .input(
+      z.object({
+        ownderId: z.number(),
+        ownderPwd: z.string(),
+        title: z.string().min(4).max(18),
+      }),
+    )
+    .output(z.object({ id: z.number() }))
     .query(async ({ input }) => {
-      return 3;
+      const response = await fetch(
+        `${process.env.SERVER_BASE_URL}/code/post/new`,
+        {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify({
+            ownerId: input.ownderId,
+            ownerPwd: input.ownderPwd,
+            code: "",
+            name: input.title,
+          }),
+        },
+      );
+      return response.json();
     }),
 });
