@@ -19,8 +19,8 @@ public class CodeMapper {
 
     public getCodeResponse toGetResponse(Code code, String pwd) {
         getCodeResponse response = new getCodeResponse();
-        response.setCode(code.getCodeHash());
-        response.setName(utils.decrypt(code, pwd));
+        response.setCode(utils.decrypt(code, pwd));
+        response.setName(code.getName());
         return response;
     }
 
