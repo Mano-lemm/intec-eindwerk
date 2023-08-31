@@ -5,21 +5,24 @@ import Head from "next/head";
 import { api } from "~/utils/api";
 import { useUserContext } from "~/context/userState";
 
-function ProjectComp(project: {id: number, name: string}) {
-  const user = useUserContext()
-  const {isError, isLoading, data} = api.code.getDetails.useQuery({pwd: user?.userPwd ? user.userPwd : "", id: project.id })
-  if(isError){
-    return <p>Error occurred</p>
+function ProjectComp(project: { id: number; name: string }) {
+  const user = useUserContext();
+  const { isError, isLoading, data } = api.code.getDetails.useQuery({
+    pwd: user?.userPwd ? user.userPwd : "",
+    id: project.id,
+  });
+  if (isError) {
+    return <p>Error occurred</p>;
   }
-  if(isLoading){
-    return <p>Loading...</p>
+  if (isLoading) {
+    return <p>Loading...</p>;
   }
   return (
     <div>
       <p>{data?.name}</p>
       <p>{data?.code}</p>
     </div>
-  )
+  );
 }
 
 function replComp() {
@@ -39,20 +42,19 @@ export default function UserPage() {
     },
   );
   let title = useRef<HTMLInputElement>(null);
-  const newProjQuery = { 
+  const newProjQuery = {
     ownderId: user?.userId ? user.userId : -1,
     ownderPwd: user?.userPwd ? user.userPwd : "",
     title: title.current?.value ? title.current.value : "",
-  }
-  const newProject = api.code.newProject.useQuery(
-    newProjQuery,
-    {
-      enabled: false,
-      retry: 3,
-    },
-  );
+  };
+  const newProject = api.code.newProject.useQuery(newProjQuery, {
+    enabled: false,
+    retry: 3,
+  });
   const [chosen, setChosen] = useState<"project" | "REPL" | "empty">("empty");
-  const [project, setProject] = useState<{id: number, name: string} | undefined>(undefined);
+  const [project, setProject] = useState<
+    { id: number; name: string } | undefined
+  >(undefined);
 
   // page init
   // the slowest redirect ever
@@ -131,7 +133,9 @@ export default function UserPage() {
                 <button
                   onClick={async () => {
                     try {
-                      newProjQuery.title = title.current?.value ? title.current.value : "";
+                      newProjQuery.title = title.current?.value
+                        ? title.current.value
+                        : "";
                       await newProject.refetch();
                       await projects.refetch();
                     } catch (e) {}
@@ -156,7 +160,10 @@ export default function UserPage() {
             ) : chosen == "empty" ? (
               <></>
             ) : chosen == "project" ? (
-              <ProjectComp id={project?.id ? project.id : -1} name={project?.name ? project.name : ""}></ProjectComp>
+              <ProjectComp
+                id={project?.id ? project.id : -1}
+                name={project?.name ? project.name : ""}
+              ></ProjectComp>
             ) : (
               <p>type Error</p>
             )}
