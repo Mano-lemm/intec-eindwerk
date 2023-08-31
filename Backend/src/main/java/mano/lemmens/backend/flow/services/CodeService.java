@@ -36,7 +36,7 @@ public class CodeService {
 
     public @NotNull getCodeResponse getCodeById(Long id, String pwd) throws UserPasswordAuthenticationException, CodeDoesNotExistException {
         Code code = codeRepository.findById(id).orElseThrow(CodeDoesNotExistException::new);
-        if(!encoder.matches(pwd + pepper, code.getOwner().getPwdHash())){
+        if(!encoder.matches(pwd, code.getOwner().getPwdHash())){
             throw new UserPasswordAuthenticationException();
         }
         return codeMapper.toGetResponse(code, pwd);

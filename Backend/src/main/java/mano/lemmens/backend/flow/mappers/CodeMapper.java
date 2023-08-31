@@ -45,6 +45,7 @@ public class CodeMapper {
         return new Code()
                 .name(req.name())
                 .code(results.code())
+		.salt(results.salt())
                 .iv(results.Iv());
     }
 
