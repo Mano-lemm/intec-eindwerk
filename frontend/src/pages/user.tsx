@@ -5,8 +5,21 @@ import Head from "next/head";
 import { api } from "~/utils/api";
 import { useUserContext } from "~/context/userState";
 
-function projectComp(user: string, project: string) {
-  return <p>{`${user} : ${project}`}</p>;
+function ProjectComp(project: {id: number, name: string}) {
+  const user = useUserContext()
+  const {isError, isLoading, data} = api.code.getDetails.useQuery({pwd: user?.userPwd ? user.userPwd : "", id: project.id })
+  if(isError){
+    return <p>Error occurred</p>
+  }
+  if(isLoading){
+    return <p>Loading...</p>
+  }
+  return (
+    <div>
+      <p>{data?.name}</p>
+      <p>{data?.code}</p>
+    </div>
+  )
 }
 
 function replComp() {
@@ -39,7 +52,7 @@ export default function UserPage() {
     },
   );
   const [chosen, setChosen] = useState<"project" | "REPL" | "empty">("empty");
-  const [project, setProject] = useState<string | undefined>(undefined);
+  const [project, setProject] = useState<{id: number, name: string} | undefined>(undefined);
 
   // page init
   // the slowest redirect ever
@@ -105,7 +118,7 @@ export default function UserPage() {
                 return (
                   <button
                     onClick={() => {
-                      setProject(e.name);
+                      setProject(e);
                       setChosen("project");
                     }}
                     key={e.id}
@@ -143,7 +156,7 @@ export default function UserPage() {
             ) : chosen == "empty" ? (
               <></>
             ) : chosen == "project" ? (
-              projectComp(String(user?.userName), String(project))
+              <ProjectComp id={project?.id ? project.id : -1} name={project?.name ? project.name : ""}></ProjectComp>
             ) : (
               <p>type Error</p>
             )}
