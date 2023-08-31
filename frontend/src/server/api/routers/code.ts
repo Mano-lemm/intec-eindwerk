@@ -35,7 +35,7 @@ export const codeRouter = createTRPCRouter({
           body: JSON.stringify({
             ownerId: input.ownderId,
             ownerPwd: input.ownderPwd,
-            code: "",
+            code: "new project",
             name: input.title,
           }),
         },

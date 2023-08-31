@@ -45,6 +45,7 @@ export default function LoginOrRegister() {
       }
       user.setUserId(tempUser.id);
       user.setUserName(tempUser.name);
+      user.setUserPwd(pass);
       router.push("/user");
     });
   };
@@ -67,6 +68,8 @@ export default function LoginOrRegister() {
         return;
       }
       user.setUserId(tempUID.id);
+      user.setUserName(name);
+      user.setUserPwd(pass);
       router.push(`/user`);
     });
   };

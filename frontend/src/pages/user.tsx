@@ -26,10 +26,13 @@ export default function UserPage() {
     },
   );
   let title = useRef<HTMLInputElement>(null);
+  const newProjQuery = { 
+    ownderId: user?.userId ? user.userId : -1,
+    ownderPwd: user?.userPwd ? user.userPwd : "",
+    title: title.current?.value ? title.current.value : "",
+  }
   const newProject = api.code.newProject.useQuery(
-    {
-      title: title.current?.value ? title.current.value : "",
-    },
+    newProjQuery,
     {
       enabled: false,
       retry: 3,
@@ -77,6 +80,7 @@ export default function UserPage() {
               onClick={() => {
                 user?.setUserId(undefined);
                 user?.setUserName(undefined);
+                user?.setUserPwd(undefined);
                 router.back();
               }}
             >
@@ -114,6 +118,7 @@ export default function UserPage() {
                 <button
                   onClick={async () => {
                     try {
+                      newProjQuery.title = title.current?.value ? title.current.value : "";
                       await newProject.refetch();
                       await projects.refetch();
                     } catch (e) {}
