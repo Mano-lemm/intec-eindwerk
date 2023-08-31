@@ -12,6 +12,6 @@ import java.util.Optional;
 public interface CodeRepository extends JpaRepository<Code, Long>, PagingAndSortingRepository<Code, Long> {
     Optional<Code> findByOwnerAndName(User owner, String name);
 
-    @Query("select c_.id, c_.name from Code c_ left join User u_ on c_.owner.id = u_.id where u_.id = ?1")
+    @Query("select new Code(c_.id, c_.owner, c_.codeHash, c_.codeSalt, c_.codeIv, c_.name) from Code c_ left join User u_ on c_.owner.id = u_.id where u_.id = ?1")
     List<Code> findCodesByOwnerId(Long ownerId);
 }

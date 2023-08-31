@@ -33,7 +33,7 @@ public class UserController {
     @GetMapping("/getProjects")
     public GetUserProjects getProjectInfo(@RequestParam Long id){
         try {
-            return service.getUserProjects(id);
+	    return service.getUserProjects(id);
         } catch (Exception e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
