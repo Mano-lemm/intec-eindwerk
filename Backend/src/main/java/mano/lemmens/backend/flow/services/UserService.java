@@ -3,26 +3,37 @@ package mano.lemmens.backend.flow.services;
 import mano.lemmens.backend.flow.exceptions.UserNameTakenException;
 import mano.lemmens.backend.flow.exceptions.UserNotFoundException;
 import mano.lemmens.backend.flow.exceptions.UserPasswordAuthenticationException;
+import mano.lemmens.backend.flow.mappers.CodeMapper;
 import mano.lemmens.backend.flow.mappers.UserMapper;
 import mano.lemmens.backend.models.dtos.userDTO.*;
+import mano.lemmens.backend.models.entities.Code;
 import mano.lemmens.backend.models.entities.User;
+import mano.lemmens.backend.models.repositories.CodeRepository;
 import mano.lemmens.backend.models.repositories.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CodeRepository codeRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final CodeMapper codeMapper;
 
     public UserService(UserRepository userRepository,
+                       CodeRepository codeRepository,
                        BCryptPasswordEncoder passwordEncoder,
-                       UserMapper userMapper){
+                       UserMapper userMapper,
+                       CodeMapper codeMapper){
         this.userRepository = userRepository;
+        this.codeRepository = codeRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
+        this.codeMapper = codeMapper;
     }
 
     public PostUserLoginResponse loginAttempt(PostUserLoginRequest req) throws UserNotFoundException, UserPasswordAuthenticationException {
@@ -31,6 +42,12 @@ public class UserService {
             throw new UserPasswordAuthenticationException();
         }
         return userMapper.toLoginResponse(user);
+    }
+
+    public GetUserProjects getUserProjects(Long id) throws UserNotFoundException {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        List<Code> codes = codeRepository.findCodesByOwnerId(id);
+        return codeMapper.toGetUserProjects(codes);
     }
 
     public PostUserRegisterResponse register(PostUserRegisterRequest req) throws UserNameTakenException {

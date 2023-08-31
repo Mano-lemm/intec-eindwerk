@@ -2,8 +2,12 @@ package mano.lemmens.backend.flow.mappers;
 
 import mano.lemmens.backend.flow.utils.securityUtils;
 import mano.lemmens.backend.models.dtos.codeDTO.*;
+import mano.lemmens.backend.models.dtos.userDTO.GetUserProjects;
 import mano.lemmens.backend.models.entities.Code;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CodeMapper {
@@ -18,6 +22,10 @@ public class CodeMapper {
         response.setCode(code.getCodeHash());
         response.setName(utils.decrypt(code, pwd));
         return response;
+    }
+
+    public GetUserProjects toGetUserProjects(List<Code> codes){
+        return new GetUserProjects(codes.stream().map(code -> new getCodeInfo(code.getId(), code.getName())).collect(Collectors.toList()));
     }
 
     public postCodeResponse toPostResponse(Code code){

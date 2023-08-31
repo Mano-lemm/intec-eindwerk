@@ -29,6 +29,16 @@ public class UserController {
         }
     }
 
+    @Contract(pure = true)
+    @GetMapping("/getProjects")
+    public GetUserProjects getProjectInfo(@RequestParam Long id){
+        try {
+            return service.getUserProjects(id);
+        } catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
+
     // aka create
     @Contract(pure = true)
     @PostMapping("/register")
