@@ -18,9 +18,11 @@ function ProjectComp(project: { id: number; name: string }) {
     return <p>Loading...</p>;
   }
   return (
-    <div>
-      <p>{data?.name}</p>
-      <p>{data?.code}</p>
+    <div className="flex flex-col gap-6 px-16 py-8">
+      <h1>{data?.name}</h1>
+      <textarea className="h-128 w-full resize-none text-black">
+        {data?.code}
+      </textarea>
     </div>
   );
 }
@@ -79,7 +81,7 @@ export default function UserPage() {
       <main className="h-screen bg-background text-white">
         <div
           id="header"
-          className="flex w-screen items-center bg-middleground text-center text-xl"
+          className="flex h-[10%] w-screen items-center bg-middleground text-center text-xl"
         >
           <div className="flex items-center gap-3 p-3">
             <Image src="/logo.png" alt="funny monkey" width={64} height={64} />
@@ -103,10 +105,10 @@ export default function UserPage() {
             </button>
           </div>
         </div>
-        <div className="flex h-full">
+        <div className="flex h-[90%]">
           <div
             id="side bar"
-            className="flex w-80 flex-col gap-4 divide-y divide-black bg-middleground px-4 py-9 text-center text-xl"
+            className="flex h-full w-80 flex-col gap-4 divide-y divide-black bg-middleground px-4 py-9 text-center text-xl"
           >
             <button
               onClick={() => {
@@ -154,7 +156,7 @@ export default function UserPage() {
               </div>
             </div>
           </div>
-          <div id="content" className="h-full w-full">
+          <div id="content" className="w-full">
             {chosen == "REPL" ? (
               replComp()
             ) : chosen == "empty" ? (

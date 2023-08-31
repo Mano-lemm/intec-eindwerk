@@ -46,7 +46,6 @@ export const codeRouter = createTRPCRouter({
     .input(z.object({ id: z.number(), pwd: z.string() }))
     .output(z.object({ code: z.string(), name: z.string() }))
     .query(async ({ input }) => {
-      console.log(JSON.stringify(input));
       const response = await fetch(
         `${process.env.SERVER_BASE_URL}/code/get/Id?id=${input.id}&pwd=${input.pwd}`,
       );

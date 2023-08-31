@@ -13,6 +13,9 @@ export default {
         big_inner: "inset 0 0 10px 10px #363636",
         big_outer: "20px 20px 40px 0 #00000040",
       },
+      height: {
+        "128": "32rem",
+      },
     },
   },
   plugins: [],
