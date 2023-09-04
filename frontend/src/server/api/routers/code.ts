@@ -51,4 +51,51 @@ export const codeRouter = createTRPCRouter({
       );
       return response.json();
     }),
+  updateCode: publicProcedure
+    .input(
+      z.object({
+        codeId: z.number(),
+        ownerPwd: z.string(),
+        name: z.string(),
+        code: z.string(),
+      }),
+    )
+    .output(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      const response = await fetch(
+        `${process.env.SERVER_BASE_URL}/code/patch`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify({
+            codeId: input.codeId,
+            ownerPwd: input.ownerPwd,
+            name: input.name,
+            code: input.code,
+          }),
+        },
+      );
+      return response.json();
+    }),
+  deleteCode: publicProcedure
+    .input(z.object({ id: z.number(), pwd: z.string() }))
+    .output(z.boolean())
+    .query(async ({ input }) => {
+      const response = await fetch(
+        `${process.env.SERVER_BASE_URL}/code/patch`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify({
+            id: input.id,
+            pwd: input.pwd,
+          }),
+        },
+      );
+      return response.ok;
+    }),
 });

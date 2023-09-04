@@ -4,25 +4,75 @@ import { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import { api } from "~/utils/api";
 import { useUserContext } from "~/context/userState";
+import { monkey_eval } from "monkey_interpreter";
+
+function interpret(code: string): string {
+  return monkey_eval(code).Inspect();
+}
 
 function ProjectComp(project: { id: number; name: string }) {
   const user = useUserContext();
-  const { isError, isLoading, data } = api.code.getDetails.useQuery({
-    pwd: user?.userPwd ? user.userPwd : "",
-    id: project.id,
+  const textref = useRef<HTMLTextAreaElement>(null);
+  const [result, setResult] = useState<string>("");
+  const codeDetails = api.code.getDetails.useQuery(
+    {
+      pwd: user?.userPwd ? user.userPwd : "",
+      id: project.id,
+    },
+    {
+      refetchIntervalInBackground: false,
+      refetchInterval: false,
+    },
+  );
+  const updateCodeParams = { code: "", name: "", codeId: -1, ownerPwd: "" };
+  const updateCode = api.code.updateCode.useQuery(updateCodeParams, {
+    enabled: false,
   });
-  if (isError) {
+
+  if (codeDetails.isError) {
     return <p>Error occurred</p>;
   }
-  if (isLoading) {
+  if (codeDetails.isLoading) {
     return <p>Loading...</p>;
   }
   return (
     <div className="flex flex-col gap-6 px-16 py-8">
-      <h1>{data?.name}</h1>
-      <textarea className="h-128 w-full resize-none text-black">
-        {data?.code}
-      </textarea>
+      <h1>{codeDetails.data?.name}</h1>
+      <textarea
+        className="h-128 w-full resize-none text-black"
+        defaultValue={codeDetails.data.code}
+        ref={textref}
+      ></textarea>
+      <div className="flex justify-evenly gap-8">
+        <button
+          className="rounded-lg bg-middleground px-8 py-4 text-slate-50"
+          onClick={() => {
+            updateCodeParams.code = textref.current?.value
+              ? textref.current.value
+              : "";
+            updateCodeParams.codeId = project.id;
+            updateCodeParams.name = codeDetails.data.name;
+            updateCodeParams.ownerPwd = user?.userPwd ? user.userPwd : "";
+            updateCode.refetch();
+          }}
+        >
+          Save
+        </button>
+        <button
+          className="rounded-lg bg-middleground px-8 py-4 text-slate-50"
+          onClick={() => {
+            setResult(
+              interpret(textref.current?.value ? textref.current.value : ""),
+            );
+          }}
+        >
+          Run
+        </button>
+        <button className="rounded-lg bg-middleground px-8 py-4 text-slate-50">
+          Delete
+        </button>
+      </div>
+      <p>{result}</p>
     </div>
   );
 }
