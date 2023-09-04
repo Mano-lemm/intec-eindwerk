@@ -28,6 +28,10 @@ function ProjectComp(project: { id: number; name: string }) {
   const updateCode = api.code.updateCode.useQuery(updateCodeParams, {
     enabled: false,
   });
+  const deleteParams = { id: -1, pwd: ""};
+  const deleteCode = api.code.deleteCode.useQuery(deleteParams,{
+    enabled: false,
+  })
 
   if (codeDetails.isError) {
     return <p>Error occurred</p>;
@@ -68,7 +72,14 @@ function ProjectComp(project: { id: number; name: string }) {
         >
           Run
         </button>
-        <button className="rounded-lg bg-middleground px-8 py-4 text-slate-50">
+        <button
+          className="rounded-lg bg-middleground px-8 py-4 text-slate-50"
+          onClick={() => {
+            deleteParams.id = project.id;
+            deleteParams.pwd = user?.userPwd ? user.userPwd : "";
+            deleteCode.refetch()
+          }}
+        >
           Delete
         </button>
       </div>

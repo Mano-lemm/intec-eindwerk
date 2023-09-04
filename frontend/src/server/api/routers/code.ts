@@ -84,7 +84,7 @@ export const codeRouter = createTRPCRouter({
     .output(z.boolean())
     .query(async ({ input }) => {
       const response = await fetch(
-        `${process.env.SERVER_BASE_URL}/code/patch`,
+        `${process.env.SERVER_BASE_URL}/code/remove`,
         {
           method: "DELETE",
           headers: {
