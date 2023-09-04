@@ -69,7 +69,8 @@ public class CodeService {
         code.setCodeHash(updated.getCodeHash());
         code.setCodeSalt(updated.getCodeSalt());
         code.setName(updated.getName());
-        codeRepository.save(code);
+        code.setCodeIv(updated.getCodeIv());
+	      code = codeRepository.save(code);
         return codeMapper.toPatchResponse(code);
     }
 
