@@ -14,11 +14,15 @@ public class Code {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "owner")
+    @JoinColumn(name = "owner", nullable = false)
     private User owner;
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String codeHash;
+    @Column(nullable = false)
     private String codeSalt;
+    @Column(nullable = false)
     private String codeIv;
+    @Column(name = "name", nullable = false)
     private String name;
 
     public Code id(Long id){
