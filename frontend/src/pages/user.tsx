@@ -20,6 +20,7 @@ function ProjectComp(project: { id: number; name: string }) {
       id: project.id,
     },
     {
+      refetchOnMount: false,
       refetchIntervalInBackground: false,
       refetchInterval: false,
     },
@@ -57,7 +58,7 @@ function ProjectComp(project: { id: number; name: string }) {
             updateCodeParams.codeId = project.id;
             updateCodeParams.name = codeDetails.data.name;
             updateCodeParams.ownerPwd = user?.userPwd ? user.userPwd : "";
-            updateCode.refetch();
+            updateCode.refetch().catch(e => console.log(e));
           }}
         >
           Save
@@ -77,7 +78,7 @@ function ProjectComp(project: { id: number; name: string }) {
           onClick={() => {
             deleteParams.id = project.id;
             deleteParams.pwd = user?.userPwd ? user.userPwd : "";
-            deleteCode.refetch()
+            deleteCode.refetch().catch(e => console.log(e))
           }}
         >
           Delete
