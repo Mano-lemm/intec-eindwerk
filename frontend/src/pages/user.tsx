@@ -1,16 +1,21 @@
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import { api } from "~/utils/api";
 import { useUserContext } from "~/context/userState";
 import { monkey_eval } from "monkey_interpreter";
+import Link from "next/link";
 
 function interpret(code: string): string {
   return monkey_eval(code).Inspect();
 }
 
-function ProjectComp(project: { id: number; name: string }) {
+function ProjectComp(project: {
+  id: number;
+  name: string;
+  setChosen: Dispatch<SetStateAction<"empty" | "REPL" | "project">>;
+}) {
   const user = useUserContext();
   const textref = useRef<HTMLTextAreaElement>(null);
   const [result, setResult] = useState<string>("");
@@ -29,10 +34,10 @@ function ProjectComp(project: { id: number; name: string }) {
   const updateCode = api.code.updateCode.useQuery(updateCodeParams, {
     enabled: false,
   });
-  const deleteParams = { id: -1, pwd: ""};
-  const deleteCode = api.code.deleteCode.useQuery(deleteParams,{
+  const deleteParams = { id: -1, pwd: "" };
+  const deleteCode = api.code.deleteCode.useQuery(deleteParams, {
     enabled: false,
-  })
+  });
 
   if (codeDetails.isError) {
     return <p>Error occurred</p>;
@@ -58,7 +63,7 @@ function ProjectComp(project: { id: number; name: string }) {
             updateCodeParams.codeId = project.id;
             updateCodeParams.name = codeDetails.data.name;
             updateCodeParams.ownerPwd = user?.userPwd ? user.userPwd : "";
-            updateCode.refetch().catch(e => console.log(e));
+            updateCode.refetch().catch((e) => console.log(e));
           }}
         >
           Save
@@ -76,9 +81,18 @@ function ProjectComp(project: { id: number; name: string }) {
         <button
           className="rounded-lg bg-middleground px-8 py-4 text-slate-50"
           onClick={() => {
+            console.log("amogus");
+          }}
+        >
+          Share
+        </button>
+        <button
+          className="rounded-lg bg-middleground px-8 py-4 text-slate-50"
+          onClick={() => {
             deleteParams.id = project.id;
             deleteParams.pwd = user?.userPwd ? user.userPwd : "";
-            deleteCode.refetch().catch(e => console.log(e))
+            deleteCode.refetch().catch((e) => console.log(e));
+            project.setChosen("empty");
           }}
         >
           Delete
@@ -89,8 +103,12 @@ function ProjectComp(project: { id: number; name: string }) {
   );
 }
 
-function replComp() {
-  return <p>REPL</p>;
+function ReplComp() {
+  return (
+    <div className="flex h-full items-center justify-center text-6xl text-slate-200">
+      <p className=" h-min">REPL is not yet implemented</p>
+    </div>
+  );
 }
 
 // TODO: add middleware to reroute on not-set user
@@ -105,7 +123,7 @@ export default function UserPage() {
       retry: 3,
     },
   );
-  let title = useRef<HTMLInputElement>(null);
+  const title = useRef<HTMLInputElement>(null);
   const newProjQuery = {
     ownderId: user?.userId ? user.userId : -1,
     ownderPwd: user?.userPwd ? user.userPwd : "",
@@ -125,14 +143,18 @@ export default function UserPage() {
   // also doesnt work without js
   // dont do this
   useEffect(() => {
-    if (
-      user == undefined ||
-      user.userId == undefined ||
-      user.userName == undefined
-    ) {
-      router.replace("/");
+    if (user?.userId == undefined || user.userName == undefined) {
+      router.replace("/").catch((e) => {
+        console.log(e);
+      });
     }
   }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      projects.refetch();
+    }, 500);
+  }, [chosen]);
   return (
     <>
       <Head>
@@ -150,8 +172,8 @@ export default function UserPage() {
             <p>Monkey Interpreter</p>
           </div>
           <div className="flex w-2/5 items-center justify-around p-3">
-            <button>Documentation</button>
-            <button className="h-16">Bug report</button>
+            <Link href={"https://monkeylang.org/"}>Documentation</Link>
+            <Link href={"https://giphy.com/embed/YdjlS7PjMACR6wJrjW"}>Bug report</Link>
           </div>
           <div className="flex w-2/5 flex-row-reverse">
             <button
@@ -220,13 +242,14 @@ export default function UserPage() {
           </div>
           <div id="content" className="w-full">
             {chosen == "REPL" ? (
-              replComp()
+              <ReplComp></ReplComp>
             ) : chosen == "empty" ? (
               <></>
             ) : chosen == "project" ? (
               <ProjectComp
                 id={project?.id ? project.id : -1}
                 name={project?.name ? project.name : ""}
+                setChosen={setChosen}
               ></ProjectComp>
             ) : (
               <p>type Error</p>
