@@ -1,6 +1,12 @@
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from "react";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import Head from "next/head";
 import { api } from "~/utils/api";
 import { useUserContext } from "~/context/userState";
@@ -153,7 +159,7 @@ export default function UserPage() {
   useEffect(() => {
     setTimeout(() => {
       projects.refetch().catch((e) => {
-          console.log(e)
+        console.log(e);
       });
     }, 500);
   }, [chosen]);
@@ -175,7 +181,9 @@ export default function UserPage() {
           </div>
           <div className="flex w-2/5 items-center justify-around p-3">
             <Link href={"https://monkeylang.org/"}>Documentation</Link>
-            <Link href={"https://giphy.com/embed/YdjlS7PjMACR6wJrjW"}>Bug report</Link>
+            <Link href={"https://giphy.com/embed/YdjlS7PjMACR6wJrjW"}>
+              Bug report
+            </Link>
           </div>
           <div className="flex w-2/5 flex-row-reverse">
             <button
@@ -219,14 +227,19 @@ export default function UserPage() {
               })}
               <div className="flex flex-col gap-4 py-4 text-center">
                 <button
-                  onClick={async () => {
-                    try {
-                      newProjQuery.title = title.current?.value
-                        ? title.current.value
-                        : "";
-                      await newProject.refetch();
-                      await projects.refetch();
-                    } catch (e) {}
+                  onClick={() => {
+                    const fn = async () => {
+                      try {
+                        newProjQuery.title = title.current?.value
+                          ? title.current.value
+                          : "";
+                        await newProject.refetch();
+                        await projects.refetch();
+                      } catch (e) {}
+                    };
+                    fn().catch((e) => {
+                      console.log(e);
+                    });
                   }}
                 >
                   New Project
