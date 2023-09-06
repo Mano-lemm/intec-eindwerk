@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import { api } from "~/utils/api";
 import { useUserContext } from "~/context/userState";
@@ -152,7 +152,9 @@ export default function UserPage() {
 
   useEffect(() => {
     setTimeout(() => {
-      projects.refetch();
+      projects.refetch().catch((e) => {
+          console.log(e)
+      });
     }, 500);
   }, [chosen]);
   return (
