@@ -62,7 +62,6 @@ public final class securityUtils {
             Cipher cipher = Cipher.getInstance(encryptionAlgorithm);
             cipher.init(Cipher.ENCRYPT_MODE, hashed, iv);
             byte[] cipherText = cipher.doFinal(code.getBytes());
-            // this is getting rather silly
             return new encryptionResults(
                     Base64.getEncoder().encodeToString(cipherText),
                     Base64.getEncoder().encodeToString(salt),
@@ -81,7 +80,6 @@ public final class securityUtils {
             Cipher cipher = Cipher.getInstance(encryptionAlgorithm);
             cipher.init(Cipher.DECRYPT_MODE, hashed, iv);
             byte[] cipherText = cipher.doFinal(Base64.getDecoder().decode(code.getCodeHash()));
-            // this is getting rather silly
             return new String(cipherText);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException |
                  InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
